@@ -8,10 +8,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Particle {
-    private double x;
-    private double y;
-    private double vx;
-    private double vy;
+    private double position;
+    private double velocity;
     private double mass;
     private double force;
 }
