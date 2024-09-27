@@ -5,9 +5,9 @@ import org.example.Particle;
 
 import java.util.List;
 
-public class Gear implements IntegrationService{
-    @Override
-    public List<Pair> integrate(List<Particle> particleList,double currentTime, double dt) {
+public class Gear{
+
+    public List<Particle> integrate(List<Particle> particleList,double currentTime, double dt) {
         return null;
     }
 }
