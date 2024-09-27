@@ -13,4 +13,5 @@ public class Ex2Params {
     private double k; // Spring constant
     private double A; // Amplitude of the armonic force
     private double l; // Initial distance of the particles
+    private double dt; // Time step
 }
