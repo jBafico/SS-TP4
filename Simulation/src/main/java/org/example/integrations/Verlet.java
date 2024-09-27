@@ -1,23 +1,29 @@
 package org.example.integrations;
 
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.example.Particle;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@NoArgsConstructor
+@Getter
 public class Verlet{
 
-    public List<Particle> integrate(List<Particle> particleList,double currentTime, double dt) {
-        //List with new state of particles
-        List<Particle> newStateParticles = new ArrayList<Particle>();
+    //Verlet needs particles(t-dt) and particles(t) to get particles(t+dt)
+    private List<Particle> previousParticles= new ArrayList<Particle>();
+    private List<Particle> currentParticles= new ArrayList<Particle>();
 
-        for (int i = 0; i < particleList.size(); i++) {
-            Particle p= particleList.get(i);
+    public List<Particle> integrate(double currentTime, double dt) {
+
+        for (int i = 0; i < currentParticles.size(); i++) {
+            Particle p= currentParticles.get(i);
             if(i==0){
 
             }
-            else if(i==particleList.size()-1){
+            else if(i==currentParticles.size()-1){
 
             }
             else{
