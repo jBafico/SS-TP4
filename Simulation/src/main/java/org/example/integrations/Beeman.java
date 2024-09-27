@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Beeman implements IntegrationService{
     @Override
-    public List<Pair> integrate(List<Particle> particleList) {
+    public List<Pair> integrate(List<Particle> particleList,double currentTime, double dt) {
         return null;
     }
 }

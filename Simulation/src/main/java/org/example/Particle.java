@@ -13,4 +13,5 @@ public class Particle {
     private double vx;
     private double vy;
     private double mass;
+    private double force;
 }

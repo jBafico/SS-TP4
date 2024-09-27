@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface IntegrationService {
 
-    public List<Pair> integrate(List<Particle> particleList);
+    public List<Pair> integrate(List<Particle> particleList, double currentTime, double dt);
 }
