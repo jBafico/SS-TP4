@@ -18,6 +18,9 @@ public class Verlet{
 
     public List<Particle> integrate(double currentTime, double dt) {
 
+        //list of the new particles to then convert them to the current state
+        List<Particle> newParticles= new ArrayList<Particle>();
+
         for (int i = 0; i < currentParticles.size(); i++) {
             Particle p= currentParticles.get(i);
             if(i==0){
