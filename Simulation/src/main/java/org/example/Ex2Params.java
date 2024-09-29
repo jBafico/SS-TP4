@@ -6,7 +6,6 @@ import lombok.Setter;
 
 @AllArgsConstructor
 @Getter
-@Setter
 public class Ex2Params {
     private int N; // Number of particles
     private double m; // Mass of particles
@@ -14,4 +13,5 @@ public class Ex2Params {
     private double A; // Amplitude of the armonic force
     private double l; // Initial distance of the particles
     private double dt; // Time step
+    private double tf; // Final time
 }

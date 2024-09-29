@@ -7,16 +7,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Particle {
+public abstract class Particle {
     private double position;
     private double velocity;
-    private double mass;
-    private double force;
-
-
-    public Particle cloneParticle(){
-        return new Particle(position,velocity,mass,force);
-    }
 }
 
 /*CI
