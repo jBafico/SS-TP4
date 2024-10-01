@@ -2,13 +2,13 @@ package org.example;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.ex1.Ex1Params;
+import org.example.ex2.Ex2Params;
 
 
-@AllArgsConstructor
-@Getter
-@Setter
-public class GlobalParams {
-    private Ex1Params ex1Params;
-    private Ex2Params ex2Params;
-}
+public record GlobalParams(
+        Ex1Params ex1Params,
+        Ex2Params ex2Params
+) {}

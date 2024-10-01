@@ -1,4 +1,6 @@
-package org.example;
+package org.example.ex2;
+
+import org.example.Particle;
 
 import java.util.function.Function;
 
@@ -8,9 +10,9 @@ public class Ex2Particle extends Particle {
 
     public Ex2Particle(double position, double velocity, boolean hasArmonicForce, Ex2Params params) {
         super(position, velocity);
-        w = Math.sqrt(params.getK() / params.getM());
+        w = Math.sqrt(params.k() / params.m());
         if (hasArmonicForce) {
-            this.armonicForceFormula = time -> params.getA() * Math.cos(time * w);
+            this.armonicForceFormula = time -> params.A() * Math.cos(time * w);
         } else {
             this.armonicForceFormula = null;
         }
@@ -22,11 +24,11 @@ public class Ex2Particle extends Particle {
 
         double springForce = 0;
         if (leftParticle != null) {
-            springForce += -1 * params.getK() * (this.getPosition() - leftParticle.getPosition());
+            springForce += -1 * params.k() * (this.getPosition() - leftParticle.getPosition());
         }
 
         if (rightParticle != null) {
-            springForce += -1 * params.getK() * (this.getPosition() - rightParticle.getPosition());
+            springForce += -1 * params.k() * (this.getPosition() - rightParticle.getPosition());
         }
 
         return springForce + armonicForce;

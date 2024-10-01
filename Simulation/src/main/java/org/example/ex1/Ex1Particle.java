@@ -1,12 +1,13 @@
-package org.example;
+package org.example.ex1;
 
 import lombok.Getter;
+import org.example.Particle;
 
 @Getter
 public class Ex1Particle extends Particle {
     // Initial particle
     public Ex1Particle(Ex1Params params) {
-        super(params.getR0(), -1 * params.getA() * params.getY() / (2 * params.getM()));
+        super(params.r0(), -1 * params.A() * params.y() / (2 * params.m()));
     }
 
     // Iteration of particle
@@ -15,6 +16,6 @@ public class Ex1Particle extends Particle {
     }
 
     public double getAcceleration(Ex1Params params){
-        return -((params.getK() * this.getPosition()) + (params.getY() * this.getVelocity())) / params.getM();
+        return -((params.k() * this.getPosition()) + (params.y() * this.getVelocity())) / params.m();
     }
 }
