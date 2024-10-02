@@ -26,6 +26,22 @@ public class Ex1Particle extends Particle {
     }
 
     public static Ex1Particle getEulerPreviousParticle(Ex1Particle currentState, double dt){
+        /* Use inverse euler to approximate a particle before the initial particle */
+        double eulerPreviousPosition = currentState.getPosition() - dt * currentState.getVelocity() + Math.pow(dt, 2) * currentState.getAcceleration() / 2;
+
+        return new Ex1Particle(eulerPreviousPosition, -1, currentState.getTime() - dt);
+    }
+
+    public static Ex1Particle getNextBeeman(Ex1Particle previousState, Ex1Particle currentState, double dt){
+        // Calculate next position
+        double nextPosition = currentState.getPosition() + currentState.getVelocity() * dt + (2.0 / 3.0) * currentState.getAcceleration() * Math.pow(dt, 2) - (1.0 / 6.0) * previousState.getAcceleration() * Math.pow(dt, 2);
+        // Calculate next velocity
+        double nextVelocity = currentState.getVelocity() + (1.0 / 3.0) * currentState.getAcceleration() * dt + (5.0 / 6.0) * currentState.getAcceleration() * dt - (1.0 / 6.0) * previousState.getAcceleration() * dt; // fixme
+
+        return new Ex1Particle(nextPosition, nextVelocity, currentState.getTime() + dt);
+    }
+
+    public static Ex1Particle getNextGear(Ex1Particle currentState, double dt){
         return null;
     }
 
@@ -37,4 +53,7 @@ public class Ex1Particle extends Particle {
 
         return new Ex1Particle(nextPosition, nextVelocity, currentState.getTime() + dt);
     }
+
+    // Gear helpers
+//    private double gearPredictedR5()
 }

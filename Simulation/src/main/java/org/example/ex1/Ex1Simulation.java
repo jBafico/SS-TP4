@@ -26,7 +26,22 @@ public class Ex1Simulation implements Simulation<Ex1Params, Ex1Results> {
                 analytical.add(new Ex1Particle(position, -1, t)); // -1 is a placeholder for velocity because the analytical solution does not provide velocity
 
                 // Get beeman results
+                if (beeman.isEmpty()) {
+                    // Create initial particle
+                    beeman.add(new Ex1Particle());
 
+                } else {
+                    beeman.add(Ex1Particle.getNextBeeman(beeman.get(beeman.size() - 2), beeman.get(beeman.size() - 1), dt));
+                }
+
+                // Get gear5 results
+                if (gear5.isEmpty()) {
+                    // Create initial particle
+                    gear5.add(new Ex1Particle());
+
+                } else {
+                    gear5.add(Ex1Particle.getNextGear(gear5.get(gear5.size() - 2), gear5.get(gear5.size() - 1), dt));
+                }
 
                 // Get verlet results
                 Ex1Particle previous = null;
