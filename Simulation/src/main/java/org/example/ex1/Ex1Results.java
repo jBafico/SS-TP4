@@ -1,7 +1,7 @@
 package org.example.ex1;
 
+import org.example.Particle;
 import org.example.interfaces.Results;
-import org.example.State;
 
 import java.util.List;
 
@@ -12,8 +12,8 @@ public record Ex1Results (
 
 record ResultsForDt(
         double dt,
-        List<State> analytical,
-        List<State> beeman,
-        List<State> verlet,
-        List<State> gear5
+        List<Ex1Particle> analytical,
+        List<Ex1Particle> beeman,
+        List<Ex1Particle> verlet,
+        List<Ex1Particle> gear5
 ) {}
