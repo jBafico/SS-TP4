@@ -14,6 +14,6 @@ record ResultsForDt(
         double dt,
         List<Ex1Particle> analytical,
         List<Ex1Particle> beeman,
-        List<Ex1Particle> verlet,
-        List<Ex1Particle> gear5
+        List<Ex1Particle> gear5,
+        List<Ex1Particle> verlet
 ) {}

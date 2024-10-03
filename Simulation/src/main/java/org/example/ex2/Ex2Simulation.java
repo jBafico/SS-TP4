@@ -27,7 +27,7 @@ public class Ex2Simulation implements Simulation<Ex2Params, Ex2Results> {
         for (int i = 0; i < params.N(); i++) {
             // If we are in the last particle, add the armonic force
             boolean hasArmonicForce = i == params.N()-1;
-            generatedParticles.add(new Ex2Particle(positionIterator, 0, hasArmonicForce, params));
+//            generatedParticles.add(new Ex2Particle(positionIterator, 0, hasArmonicForce, params));
             positionIterator += params.l();
         }
 

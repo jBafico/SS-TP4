@@ -21,46 +21,37 @@ public class Ex1Simulation implements Simulation<Ex1Params, Ex1Results> {
             List<Ex1Particle> verlet = new ArrayList<>();
             List<Ex1Particle> gear5 = new ArrayList<>();
             for (double t = 0; t <= params.tf(); t += dt) {
-                // Get analytical results
-                double position = Ex1Particle.getAnalyticalPosition(t);
-                analytical.add(new Ex1Particle(position, -1, t)); // -1 is a placeholder for velocity because the analytical solution does not provide velocity
+                if (t == 0) {
+                    // Add the initial particle
+                    analytical.add(new Ex1Particle(dt));
+                    beeman.add(new Ex1Particle(dt));
+                    gear5.add(new Ex1Particle(dt));
+                    verlet.add(new Ex1Particle(dt));
 
-                // Get beeman results
-                if (beeman.isEmpty()) {
-                    // Create initial particle
-                    beeman.add(new Ex1Particle());
+                    // Use inverse euler to approximate a particle before the initial particle
+                    Ex1Particle previousBeeman = beeman.getFirst().createEulerPreviousParticle();
+                    Ex1Particle previousVerlet = verlet.getFirst().createEulerPreviousParticle();
 
+                    // Add the approximated particle before the initial particle
+                    // This is because Beeman and Verlet need two previous particles to calculate the next one
+                    beeman.addFirst(previousBeeman);
+                    verlet.addFirst(previousVerlet);
                 } else {
-                    beeman.add(Ex1Particle.getNextBeeman(beeman.get(beeman.size() - 2), beeman.get(beeman.size() - 1), dt));
+                    analytical.add(analytical.getLast().createNextAnalytical());
+                    beeman.add(beeman.getLast().createNextBeeman(beeman.get(beeman.size() - 2)));
+//                    gear5.add(Ex1Particle.getNextGear(gear5.getLast(), dt));
+                    verlet.add(verlet.getLast().createNextVerlet(verlet.get(verlet.size() - 2)));
                 }
 
-                // Get gear5 results
-                if (gear5.isEmpty()) {
-                    // Create initial particle
-                    gear5.add(new Ex1Particle());
-
-                } else {
-                    gear5.add(Ex1Particle.getNextGear(gear5.get(gear5.size() - 2), gear5.get(gear5.size() - 1), dt));
-                }
-
-                // Get verlet results
-                Ex1Particle previous = null;
-                if (verlet.isEmpty()) {
-                    // Create initial particle
-                    verlet.add(new Ex1Particle());
-
-                    // Use euler to approximate a particle before the initial particle
-                    previous = Ex1Particle.getEulerPreviousParticle(verlet.getFirst(), dt);
-                    verlet.addFirst(previous);
-
-                } else {
-                    verlet.add(Ex1Particle.getNextVerlet(verlet.get(verlet.size() - 2), verlet.getLast(), dt));
-                }
             }
-            verlet.removeFirst(); // Remove the initial particle that was calculated with inverse euler
+
+            // Remove the initial particle that was calculated with inverse euler
+            beeman.removeFirst();
+            verlet.removeFirst();
+
 
             // Save all results for this configuration
-            ex1Results.results().add(new ResultsForDt(dt, analytical, new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+            ex1Results.results().add(new ResultsForDt(dt, analytical, beeman, gear5, verlet));
         }
 
         return ex1Results;
