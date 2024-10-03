@@ -39,7 +39,7 @@ public class Ex1Simulation implements Simulation<Ex1Params, Ex1Results> {
                 } else {
                     analytical.add(analytical.getLast().createNextAnalytical());
                     beeman.add(beeman.getLast().createNextBeeman(beeman.get(beeman.size() - 2)));
-//                    gear5.add(Ex1Particle.getNextGear(gear5.getLast(), dt));
+                    gear5.add(gear5.getLast().createNextGear());
                     verlet.add(verlet.getLast().createNextVerlet(verlet.get(verlet.size() - 2)));
                 }
 
