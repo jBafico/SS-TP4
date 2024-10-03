@@ -92,7 +92,6 @@ public class Ex1Particle extends Particle {
     }
 
     // Gear helpers
-    @Override
     protected double calcR5(){
         if (this.getR5() != null) {
             return this.getR5();
@@ -100,7 +99,6 @@ public class Ex1Particle extends Particle {
         return - (params.k() * this.calcR3() + params.y() * this.calcR4()) / params.m();
     }
 
-    @Override
     protected double calcR4(){
         if (this.getR4() != null) {
             return this.getR4();
@@ -108,12 +106,18 @@ public class Ex1Particle extends Particle {
         return - (params.k() * this.calcR2() + params.y() * this.calcR3()) / params.m();
     }
 
-    @Override
     protected double calcR3(){
         if (this.getR3() != null) {
             return this.getR3();
         }
         return - (params.k() * this.getR1() + params.y() * this.calcR2()) / params.m();
+    }
+
+    protected double calcR2(){
+        if (this.getR2() == null){
+            return this.getAcceleration();
+        }
+        return getR2();
     }
 
     private double gearPredictNextR5(){

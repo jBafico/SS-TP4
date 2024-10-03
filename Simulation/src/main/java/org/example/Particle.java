@@ -48,16 +48,5 @@ public abstract class Particle {
     public double getVelocity(){
         return r1;
     }
-
-    protected abstract double getAcceleration();
-    protected double calcR2(){
-        if (this.r2 == null){
-            this.r2 = this.getAcceleration();
-        }
-        return r2;
-    }
-    protected abstract double calcR3();
-    protected abstract double calcR4();
-    protected abstract double calcR5();
 }
 

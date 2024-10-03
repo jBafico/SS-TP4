@@ -1,22 +1,39 @@
 package org.example.ex2;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.Particle;
-import org.example.ex1.Ex1Results;
 import org.example.interfaces.Simulation;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Ex2Simulation implements Simulation<Ex2Params, Ex2Results> {
     public Ex2Results run(Ex2Params params, String timestamp, String outputFilePath){
-//        Ex2Results results = new Ex2Results(params, new ArrayList<>());
-        return null;
+        // Set class variable params
+        Ex2Particle.setParams(params);
+
+        // Create results object
+        Ex2Results results = new Ex2Results(params, new HashMap<>());
+
+        // Run simulation for each repetition
+        for (int repetitionNo = 0; repetitionNo < params.repetitions(); repetitionNo++) {
+            List<ResultsForDt> resultsForRepetition = new ArrayList<>();
+
+            // Run simulation for each dt
+            for (double dt : params.dts()) {
+                List<Ex2Particle> analytical = new ArrayList<>();
+                List<Ex2Particle> beeman = new ArrayList<>();
+                List<Ex2Particle> verlet = new ArrayList<>();
+                List<Ex2Particle> gear5 = new ArrayList<>();
+                for (double t = 0; t <= params.tf(); t += dt) {
+                    // Add particles to list
+                }
+
+                // Save all results for this configuration
+                resultsForRepetition.add(new ResultsForDt(dt, analytical, beeman, gear5, verlet));
+            }
+        }
+
+        return results;
     }
 
     private List<Particle> generateEx2Particles(Ex2Params params) {
@@ -30,28 +47,6 @@ public class Ex2Simulation implements Simulation<Ex2Params, Ex2Results> {
 //            generatedParticles.add(new Ex2Particle(positionIterator, 0, hasArmonicForce, params));
             positionIterator += params.l();
         }
-
         return generatedParticles;
-    }
-
-    private void writeOutput(Ex2Results results, String timestamp, String outputFilePath) {
-        // Create an ObjectMapper instance
-        ObjectMapper mapper = new ObjectMapper();
-
-        String finalFilePath = String.format("%s/ex2_results_%s.json", outputFilePath, timestamp);
-        try (BufferedWriter writer = Files.newBufferedWriter(
-            Paths.get(finalFilePath),
-            StandardOpenOption.WRITE,
-            StandardOpenOption.CREATE,
-            StandardOpenOption.TRUNCATE_EXISTING
-        )) {
-            // Convert the Ex1Results object to JSON string
-            String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(results);
-
-            // Write the JSON string to the file
-            writer.write(jsonString);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not write files.", e);
-        }
     }
 }
