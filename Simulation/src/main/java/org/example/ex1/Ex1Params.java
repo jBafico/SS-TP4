@@ -11,5 +11,6 @@ public record Ex1Params(
         double r0, // Initial position
         double A, // Constant to calculate initial velocity
         List<Double> dts, // Time steps
-        double tf // Final time
+        double tf, // Final time
+        int repetitions // Number of repetitions
 ) implements Params {}

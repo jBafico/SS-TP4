@@ -4,10 +4,11 @@ import org.example.Particle;
 import org.example.interfaces.Results;
 
 import java.util.List;
+import java.util.Map;
 
 public record Ex1Results (
         Ex1Params params,
-        List<ResultsForDt> results
+        Map<Integer, List<ResultsForDt>> resultsByRepetitionNo
 ) implements Results {}
 
 record ResultsForDt(
