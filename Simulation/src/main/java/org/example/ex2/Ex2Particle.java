@@ -3,27 +3,26 @@ package org.example.ex2;
 import lombok.Setter;
 import org.example.Particle;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
+
 
 public class Ex2Particle extends Particle {
     @Setter
     protected static Ex2Params params;
 
-    private final static Function<Double, Double> armonicForceFormula = t -> params.A() * Math.cos(t * Ex2Particle.w());
+    private final static BiFunction<Double, Double, Double> armonicForceFormula = (t, w) -> params.A() * Math.cos(t * w);
 
-    private static double w(){
-        if (params == null){
-            throw new IllegalStateException("Params not set");
-        }
-        return params.k() / params.m(); // todo check if correct
-    }
+    private final double w;
+    private final double k;
 
-    public Ex2Particle(double time, double dt, double position, double velocity) {
+    public Ex2Particle(double time, double dt, double position, double velocity, double w, double k) {
         super(time, dt, position, velocity);
+        this.w = w;
+        this.k = k;
     }
 
     private Ex2Particle createNextParticle(double position, double velocity){
-        return new Ex2Particle(this.getTime() + this.getDt(), this.getDt(), position, velocity);
+        return new Ex2Particle(this.getTime() + this.getDt(), this.getDt(), position, velocity, this.w, this.k);
     }
 
     public Ex2Particle createNextVerlet(Ex2Particle previous, Ex2Particle currentLeft, Ex2Particle currentRight){
@@ -34,17 +33,16 @@ public class Ex2Particle extends Particle {
     }
 
     private double getAcceleration(Particle leftParticle, Particle rightParticle){
-        double time = 0;
+        double time = this.getTime();
+        double w = this.w;
         double force;
 
-        double springForce = 0;
-
         if (leftParticle == null){
-            force = armonicForceFormula.apply(time);
+            force = armonicForceFormula.apply(time, w);
         } else if (rightParticle == null) {
             force = 0;
         } else {
-            force = params.k() * (leftParticle.getPosition() - this.getPosition()) + params.k() * (rightParticle.getPosition() - this.getPosition());
+            force = this.k * (leftParticle.getPosition() - this.getPosition()) + this.k * (rightParticle.getPosition() - this.getPosition());
         }
 
         return force / params.m();

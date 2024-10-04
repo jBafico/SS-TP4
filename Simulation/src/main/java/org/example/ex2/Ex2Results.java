@@ -7,10 +7,5 @@ import java.util.Map;
 
 public record Ex2Results (
         Ex2Params params,
-        Map<Integer, List<ResultsForDt>> resultsByRepetitionNo
+        Map<Double, Map<Integer, List<List<Ex2Particle>>>> resultsByKAndW
 ) implements Results {}
-
-record ResultsForDt(
-        double dt,
-        List<List<Ex2Particle>> verlet
-) {}

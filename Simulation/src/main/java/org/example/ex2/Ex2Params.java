@@ -9,10 +9,11 @@ import java.util.List;
 public record Ex2Params(
         int N, // Number of particles
         double m, // Mass of particles
-        double k, // Spring constant
         double A, // Amplitude of the armonic force
         double l, // Initial between the particles
-        List<Double> dts, // Time steps
-        double tf, // Final time
-        int repetitions // Number of repetitions
+        List<Double> kValues, // List of k values
+        int minW, // Minimum w
+        int maxW, // Maximum w
+        int increaseW, // Increase w
+        double tf // Final time
 ) implements Params {}
