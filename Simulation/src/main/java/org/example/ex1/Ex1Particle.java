@@ -7,6 +7,11 @@ public class Ex1Particle extends Particle {
     @Setter
     protected static Ex1Params params;
 
+    private Double r2;
+    private Double r3;
+    private Double r4;
+    private Double r5;
+
     // Initial particle
     public Ex1Particle(double dt) {
         super(0, dt, params.r0(), -1 * params.A() * params.y() / (2 * params.m()));
@@ -14,10 +19,18 @@ public class Ex1Particle extends Particle {
 
     private Ex1Particle(double time, double dt, double position, double velocity){
         super(time, dt, position, velocity);
+        this.r2 = null;
+        this.r3 = null;
+        this.r4 = null;
+        this.r5 = null;
     }
 
     private Ex1Particle(double time, double dt, double r0, double r1, double r2, double r3, double r4, double r5){
-        super(time, dt, r0, r1, r2, r3, r4, r5);
+        super(time, dt, r0, r1);
+        this.r2 = r2;
+        this.r3 = r3;
+        this.r4 = r4;
+        this.r5 = r5;
     }
 
     private Ex1Particle createNextParticle(double position, double velocity){
@@ -93,31 +106,31 @@ public class Ex1Particle extends Particle {
 
     // Gear helpers
     protected double calcR5(){
-        if (this.getR5() != null) {
-            return this.getR5();
+        if (this.r5 != null) {
+            return this.r5;
         }
         return - (params.k() * this.calcR3() + params.y() * this.calcR4()) / params.m();
     }
 
     protected double calcR4(){
-        if (this.getR4() != null) {
-            return this.getR4();
+        if (this.r4 != null) {
+            return this.r4;
         }
         return - (params.k() * this.calcR2() + params.y() * this.calcR3()) / params.m();
     }
 
     protected double calcR3(){
-        if (this.getR3() != null) {
-            return this.getR3();
+        if (this.r3 != null) {
+            return this.r3;
         }
         return - (params.k() * this.getR1() + params.y() * this.calcR2()) / params.m();
     }
 
     protected double calcR2(){
-        if (this.getR2() == null){
+        if (this.r2 == null){
             return this.getAcceleration();
         }
-        return getR2();
+        return this.r2;
     }
 
     private double gearPredictNextR5(){
