@@ -9,32 +9,44 @@ public class Ex2Particle extends Particle {
     @Setter
     protected static Ex2Params params;
 
-    private final Function<Double, Double> armonicForceFormula;
-    private final double w;
+    private final static Function<Double, Double> armonicForceFormula = t -> params.A() * Math.cos(t * Ex2Particle.w());
 
-    public Ex2Particle(double position, double velocity, boolean hasArmonicForce, double time, double dt) {
-        super(time, dt, position, velocity);
-        w = Math.sqrt(params.k() / params.m());
-        if (hasArmonicForce) {
-            this.armonicForceFormula = t -> params.A() * Math.cos(t * w);
-        } else {
-            this.armonicForceFormula = null;
+    private static double w(){
+        if (params == null){
+            throw new IllegalStateException("Params not set");
         }
+        return params.k() / params.m(); // todo check if correct
+    }
+
+    public Ex2Particle(double time, double dt, double position, double velocity) {
+        super(time, dt, position, velocity);
+    }
+
+    private Ex2Particle createNextParticle(double position, double velocity){
+        return new Ex2Particle(this.getTime() + this.getDt(), this.getDt(), position, velocity);
+    }
+
+    public Ex2Particle createNextVerlet(Ex2Particle previous, Ex2Particle currentLeft, Ex2Particle currentRight){
+        double nextPosition = 2 * this.getPosition() - previous.getPosition() + Math.pow(this.getDt(), 2) * getAcceleration(currentLeft, currentRight);
+        double nextVelocity = (nextPosition - previous.getPosition()) / (2 * this.getDt());
+
+        return this.createNextParticle(nextPosition, nextVelocity);
     }
 
     private double getAcceleration(Particle leftParticle, Particle rightParticle){
         double time = 0;
-        double armonicForce = armonicForceFormula != null ? armonicForceFormula.apply(time) : 0;
+        double force;
 
         double springForce = 0;
-        if (leftParticle != null) {
-            springForce += -1 * params.k() * (this.getPosition() - leftParticle.getPosition());
+
+        if (leftParticle == null){
+            force = armonicForceFormula.apply(time);
+        } else if (rightParticle == null) {
+            force = 0;
+        } else {
+            force = params.k() * (leftParticle.getPosition() - this.getPosition()) + params.k() * (rightParticle.getPosition() - this.getPosition());
         }
 
-        if (rightParticle != null) {
-            springForce += -1 * params.k() * (this.getPosition() - rightParticle.getPosition());
-        }
-
-        return (springForce + armonicForce) / params.m();
+        return force / params.m();
     }
 }

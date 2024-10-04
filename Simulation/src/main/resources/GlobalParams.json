@@ -7,7 +7,7 @@
     "A": 1,
     "dts": [0.01, 0.02, 0.05],
     "tf": 5.0,
-    "repetitions": 2
+    "repetitions": 1
   },
   "ex2Params": {
     "N": 1000,
@@ -17,7 +17,7 @@
     "l": 0.1,
     "dts": [0.01, 0.02, 0.05],
     "tf": 10.0,
-    "repetitions": 2
+    "repetitions": 1
   }
   
 }

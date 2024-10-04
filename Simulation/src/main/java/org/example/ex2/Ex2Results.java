@@ -12,8 +12,5 @@ public record Ex2Results (
 
 record ResultsForDt(
         double dt,
-        List<Ex2Particle> analytical,
-        List<Ex2Particle> beeman,
-        List<Ex2Particle> gear5,
-        List<Ex2Particle> verlet
+        List<List<Ex2Particle>> verlet
 ) {}
