@@ -56,12 +56,10 @@ public class Ex2Simulation implements Simulation<Ex2Params, Ex2Results> {
     private List<Ex2Particle> generateInitialEx2Particles(Ex2Params params, double dt, double w, double k) {
         List<Ex2Particle> generatedParticles = new ArrayList<>();
 
-        double timeIterator = 0;
-        double positionIterator = 0;
+        double xPositionIterator = 0;
         for (int i = 0; i <= params.N(); i++) {
-            generatedParticles.add(new Ex2Particle(timeIterator, dt, positionIterator, 0, w, k));
-            positionIterator += params.l();
-            timeIterator += dt;
+            generatedParticles.add(new Ex2Particle(0, dt, 0, 0, xPositionIterator, w, k));
+            xPositionIterator += params.l();
         }
         return generatedParticles;
     }
