@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.ex1.Ex1Results;
 import org.example.ex1.Ex1Simulation;
 import org.example.ex1.ResultsForDt;
+import org.example.ex2.Ex2Particle;
 import org.example.ex2.Ex2Results;
 import org.example.ex2.Ex2Simulation;
 import org.example.interfaces.Results;
@@ -18,6 +19,9 @@ import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
+import static org.example.Particle.params;
 
 public class Main {
     public static void main(String[] args) {
@@ -68,6 +72,110 @@ public class Main {
         System.out.println("Simulation finished!");
     }
 
+
+    private static void ex1Serializer(JsonGenerator jsonGenerator, Ex1Results ex1Results) throws IOException {
+        // Start writing the JSON object
+        jsonGenerator.writeStartObject();
+
+        // Assuming Results has a list or other large fields that you want to write incrementally
+        jsonGenerator.writeFieldName("params");  // Replace with actual field names
+        jsonGenerator.writeObject(ex1Results.params());  // Replace with the actual method to get the field
+
+        // You can add more fields here and write incrementally
+        jsonGenerator.writeRaw(", \"resultsByRepetitionNo\" : { \"0\" : ");
+        jsonGenerator.writeRaw("[{");  // Opening array and object
+        List<ResultsForDt> resultsList = ex1Results.resultsByRepetitionNo().get(0);
+        for (int i = 0; i < resultsList.size(); i++) {
+            var currentResult = resultsList.get(i);
+            jsonGenerator.writeRaw("\"dt\" : ");  // Manually write the first field
+            jsonGenerator.writeRaw(String.valueOf(currentResult.dt));  // Write the value of dt
+
+            jsonGenerator.writeFieldName("analytical");
+            jsonGenerator.writeObject(currentResult.analytical);
+            jsonGenerator.flush();
+            currentResult.analytical = null;
+            System.gc();
+            jsonGenerator.writeFieldName("beeman");
+            jsonGenerator.writeObject(currentResult.beeman);
+            jsonGenerator.flush();
+            currentResult.beeman = null;
+            System.gc();
+            jsonGenerator.writeFieldName("gear5");
+            jsonGenerator.writeObject(currentResult.gear5);
+            jsonGenerator.flush();
+            currentResult.gear5 = null;
+            System.gc();
+            jsonGenerator.writeFieldName("verlet");
+            jsonGenerator.writeObject(currentResult.verlet);
+            jsonGenerator.flush();
+            currentResult.verlet = null;
+            System.gc();
+            if (i != resultsList.size() - 1) {
+                //si no es el ultimo pongo comma
+                jsonGenerator.writeRaw("},{");
+            } else {
+                jsonGenerator.writeRaw("}]");
+            }
+
+        }
+
+        jsonGenerator.writeEndObject();
+
+        // Finish writing the JSON object
+        jsonGenerator.writeRaw("}");
+
+        // Flush and close the JsonGenerator
+        jsonGenerator.flush();
+        jsonGenerator.close();
+
+    }
+
+    private static void ex2Serializer(BufferedWriter writer, Ex2Results results) throws IOException {
+        Map<Double, Map<Double, List<List<Ex2Particle>>>> resultsByKAndW = results.resultsByKAndW();
+        ObjectMapper mapper = new ObjectMapper();  // No pretty printing
+
+        writer.write("{");
+        writer.write("\"params\":");
+        writer.write(mapper.writeValueAsString(results.params()));  // No pretty printing here
+        writer.write(",");
+        writer.write("\"resultsByKAndW\": {");
+        resultsByKAndW.forEach((k, resultsByW) -> {
+            try {
+                writer.write(String.format("\"%.2f\": {", k));
+                resultsByW.forEach((w, resultsForKAndW) -> {
+                    try {
+                        System.out.println("Writing results for k: " + k + " and w: " + w);
+                        writer.write(String.format("\"%.2f\": [", w));
+                        for (List<Ex2Particle> particleList : resultsForKAndW) {
+                            String particleListString = mapper.writeValueAsString(particleList);  // No pretty printing
+                            writer.write(particleListString);
+                            if (resultsForKAndW.indexOf(particleList) != resultsForKAndW.size() - 1) {
+                                writer.write(",");
+                            }
+                        }
+                        if (resultsByW.get(w) != resultsByW.values().toArray()[resultsByW.size() - 1]) {
+                            writer.write("],");
+                        } else {
+                            writer.write("]");
+                        }
+                    } catch (IOException e) {
+                        throw new RuntimeException("Could not write files.", e);
+                    }
+                });
+                if (resultsByKAndW.get(k) != resultsByKAndW.values().toArray()[resultsByKAndW.size() - 1]) {
+                    writer.write("},");
+                } else {
+                    writer.write("}");
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Could not write files.", e);
+            }
+        });
+        writer.write("}");
+        writer.write("}");
+    }
+
+
     private static void writeOutput(Results results, String timestamp, String outputFilePath, int exNumber) {
         // Create an ObjectMapper instance
         ObjectMapper mapper = new ObjectMapper();
@@ -81,62 +189,12 @@ public class Main {
         )) {
             // Create a JsonGenerator for incremental writing
             JsonGenerator jsonGenerator = mapper.getFactory().createGenerator(writer);
-            if ( results instanceof Ex1Results ex1Results){
-
-                // Start writing the JSON object
-                jsonGenerator.writeStartObject();
-
-                // Assuming Results has a list or other large fields that you want to write incrementally
-                jsonGenerator.writeFieldName("params");  // Replace with actual field names
-                jsonGenerator.writeObject(ex1Results.params());  // Replace with the actual method to get the field
-
-                // You can add more fields here and write incrementally
-                jsonGenerator.writeRaw(", \"resultsByRepetitionNo\" : { \"0\" : ");
-                jsonGenerator.writeRaw("[{");  // Opening array and object
-                List<ResultsForDt> resultsList = ex1Results.resultsByRepetitionNo().get(0);
-                for (int i = 0; i < resultsList.size() ; i++){
-                    var currentResult = resultsList.get(i);
-                    jsonGenerator.writeRaw("\"dt\" : ");  // Manually write the first field
-                    jsonGenerator.writeRaw(String.valueOf(currentResult.dt));  // Write the value of dt
-
-                    jsonGenerator.writeFieldName("analytical");
-                    jsonGenerator.writeObject(currentResult.analytical);
-                    jsonGenerator.flush();
-                    currentResult.analytical = null;
-                    System.gc();
-                    jsonGenerator.writeFieldName("beeman");
-                    jsonGenerator.writeObject(currentResult.beeman);
-                    jsonGenerator.flush();
-                    currentResult.beeman = null;
-                    System.gc();
-                    jsonGenerator.writeFieldName("gear5");
-                    jsonGenerator.writeObject(currentResult.gear5);
-                    jsonGenerator.flush();
-                    currentResult.gear5 = null;
-                    System.gc();
-                    jsonGenerator.writeFieldName("verlet");
-                    jsonGenerator.writeObject(currentResult.verlet);
-                    jsonGenerator.flush();
-                    currentResult.verlet = null;
-                    System.gc();
-                    if ( i != resultsList.size() - 1){
-                        //si no es el ultimo pongo comma
-                        jsonGenerator.writeRaw("},{");
-                    } else {
-                        jsonGenerator.writeRaw("}]");
-                    }
-
-                }
-
-                jsonGenerator.writeEndObject();
-
-                // Finish writing the JSON object
-                jsonGenerator.writeRaw("}");
-
-                // Flush and close the JsonGenerator
-                jsonGenerator.flush();
-                jsonGenerator.close();
+            if (results instanceof Ex1Results ex1Results) {
+                ex1Serializer(jsonGenerator,ex1Results);
+                return;
             }
+            ex2Serializer(writer,(Ex2Results) results);
+
 
         } catch (IOException e) {
             throw new RuntimeException("Could not write files.", e);
