@@ -17,8 +17,8 @@ public class Ex2Simulation implements Simulation<Ex2Params, Ex2Results> {
         // Calculate results for each k
         params.kValues().forEach(k -> {
             // Calculate results for each w
-            Map<Integer, List<List<Ex2Particle>>> resultsByW = new HashMap<>();
-            for (int w = params.minW(); w <= params.maxW(); w += params.increaseW()){
+            Map<Double, List<List<Ex2Particle>>> resultsByW = new HashMap<>();
+            for (double w = params.minW(); w <= params.maxW(); w += params.increaseW()){
                 double dt = 1 / ((double)w * 100);
                 List<List<Ex2Particle>> verlet = new ArrayList<>();
                 for (double t = 0; t <= params.tf(); t += dt) {

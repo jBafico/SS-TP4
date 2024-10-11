@@ -14,6 +14,6 @@ public record Ex2Params(
         List<Double> kValues, // List of k values
         int minW, // Minimum w
         int maxW, // Maximum w
-        int increaseW, // Increase w
+        double increaseW, // Increase w
         double tf // Final time
 ) implements Params {}
