@@ -77,7 +77,7 @@ public class Main {
             StandardOpenOption.TRUNCATE_EXISTING
         )) {
             // Convert the Ex1Results object to JSON string
-            String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(results);
+            String jsonString = mapper.writeValueAsString(results);
 
             // Write the JSON string to the file
             writer.write(jsonString);

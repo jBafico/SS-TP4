@@ -1,6 +1,6 @@
 from load_most_recent_json import load_most_recent_simulation_json
 import json
-from grapher_ex1_item2 import handle_ex1_item2_graph
+from grapher_ex1_helper import handle_ex1_item2_graph, handle_ex1_item3_graph
 
 
 def main():
@@ -10,6 +10,14 @@ def main():
 
     if config["item12"]:
         handle_ex1_item2_graph(json_data)
+
+    if config["item13"]:
+        handle_ex1_item3_graph(json_data)
+        
+
+
+
+
 
 
 if __name__ == "__main__":
