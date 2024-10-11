@@ -14,10 +14,59 @@ def main():
 
     json_data = load_most_recent_simulation_json_ex2("../outputs")
 
+    max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] = calc_max_oscilation_amplitudes_by_w(json_data)
     if config["item1and2graphs"]:
-        max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] = calc_max_oscilation_amplitudes_by_w(json_data)
         amplitude_vs_omega_graphs_for_different_k(max_oscilation_amplitudes_by_k_and_w)
-    pass
+    if config["item3graph"]:
+        aproximation_w_sqrt_k_graph(max_oscilation_amplitudes_by_k_and_w)
+
+
+def get_k_to_biggest_w(max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] ):
+    k_to_w0 : dict[str,float] = {}
+    for k, w_to_amplitude_dict in max_oscilation_amplitudes_by_k_and_w.items():
+        max_w = None
+        max_amplitude = float("-inf")
+        for current_w , amplitude_list in w_to_amplitude_dict.items():
+            current_max_amplitude = max(amplitude_list)
+            if current_max_amplitude > max_amplitude:
+                max_amplitude = current_max_amplitude
+                max_w = float(current_w)
+        k_to_w0[k] = max_w
+    return k_to_w0
+
+        
+
+def aproximation_w_sqrt_k_graph(max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] ):
+
+    k_to_w0 = get_k_to_biggest_w(max_oscilation_amplitudes_by_k_and_w)
+
+    x_values = [float(k) for k in k_to_w0.keys()]
+    y_values = [w0 for w0 in k_to_w0.values()]
+
+
+
+    ensure_output_directory_creation(output_directory)
+    plt.scatter(x_values,y_values)
+    plt.plot(x_values, y_values)
+    plt.xlabel("k (kg/s²)")
+    plt.ylabel('ω (rad/s)')
+    plt.grid(True)
+
+    # Define the output file path with dt in the filename
+    file_path = os.path.join(output_directory, f"w0_given_k.png")
+
+    # Save the plot to the file
+    plt.savefig(file_path)
+
+    # Optionally, you can clear the current figure to prevent overlay issues in future plots
+    plt.clf()
+
+    print(f"Saved plot to '{file_path}'")
+
+
+
+    
+    
 
 
 def calc_max_oscilation_amplitudes_by_w(json_data: dict[str, dict]) -> dict[str, dict[str, list[float]]]:

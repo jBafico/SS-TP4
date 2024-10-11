@@ -1,3 +1,4 @@
 {
-    "item1and2graphs": true
+    "item1and2graphs": false,
+    "item3graph": true
 }
