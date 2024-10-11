@@ -4,13 +4,19 @@ import os
 import matplotlib.pyplot as plt
 
 
+
+output_directory = "EJ2"
+
+
 def main():
-    # with open("item2config.json", "r") as f:
-    #     config = json.load(f)
+    with open("item2config.json", "r") as f:
+        config = json.load(f)
+
     json_data = load_most_recent_simulation_json_ex2("../outputs")
-    max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] = calc_max_oscilation_amplitudes_by_w(json_data)
-    max_oscilation_amplitudes_for_k_100: dict[str, float] = {w: max(amplitudes) for w, amplitudes in max_oscilation_amplitudes_by_k_and_w['100.0'].items()}
-    amplitude_vs_omega_graph(max_oscilation_amplitudes_by_k_and_w['100.0'])
+
+    if config["item1and2graphs"]:
+        max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] = calc_max_oscilation_amplitudes_by_w(json_data)
+        amplitude_vs_omega_graphs_for_different_k(max_oscilation_amplitudes_by_k_and_w)
     pass
 
 
@@ -41,21 +47,20 @@ def calc_max_oscilation_amplitude_in_dt(particles_in_dt: list[dict[str, float]])
             max_oscilation_amplitude = particle['position']
     return max_oscilation_amplitude
 
+def amplitude_vs_omega_graph(max_oscilation_amplitudes_by_w: dict[str,list[float]], current_k: str):
 
-def amplitude_vs_omega_graph(max_oscilation_amplitudes_by_w):
-    directory = 'Ej2_a'
-    print('Starting to plot')
     omega_vals = [float(w) for w in max_oscilation_amplitudes_by_w.keys()]
     amplitude_vals = [max(amplitudes) for amplitudes in max_oscilation_amplitudes_by_w.values()]
 
-    ensure_output_directory_creation(directory)
+    ensure_output_directory_creation(output_directory)
+    plt.scatter(omega_vals,amplitude_vals)
     plt.plot(omega_vals, amplitude_vals)
     plt.xlabel('ω (rad/s)')
     plt.ylabel('Amplitud (m)')
     plt.grid(True)
 
     # Define the output file path with dt in the filename
-    file_path = os.path.join(directory, f"omega_vs_amplitude.png")
+    file_path = os.path.join(output_directory, f"omega_vs_amplitude_for_K_{current_k}.png")
 
     # Save the plot to the file
     plt.savefig(file_path)
@@ -66,29 +71,37 @@ def amplitude_vs_omega_graph(max_oscilation_amplitudes_by_w):
     print(f"Saved plot to '{file_path}'")
 
 
-def amplitude_vs_omega_graph_with_k(amplitude_vals, omega_vals, k_vals):
-    directory = 'Ej2_b'
+def amplitude_vs_omega_graphs_for_different_k(max_oscilation_amplitudes_by_k_then_w: dict[str,dict[str,list[float]]]):
+    print('Starting to plot')
 
-    ensure_output_directory_creation(directory)
+    for k, wsdict in max_oscilation_amplitudes_by_k_then_w.items():
+        amplitude_vs_omega_graph(wsdict,k)
 
-    for k in k_vals:
-        # Graficar ω vs amplitud para cada valor de k
-        plt.plot(omega_vals, amplitude_vals, label=f'k = {k:.0f} N/m')
 
-    plt.xlabel('ω (rad/s)')
-    plt.ylabel('Amplitud (m)')
-    plt.grid(True)
 
-    # Define the output file path with dt in the filename
-    file_path = os.path.join(directory, f"omega_vs_amplitude_per_k.png")
+# def amplitude_vs_omega_graph_with_k(amplitude_vals, omega_vals, k_vals):
+#     directory = 'Ej2_b'
 
-    # Save the plot to the file
-    plt.savefig(file_path)
+#     ensure_output_directory_creation(directory)
 
-    # Optionally, you can clear the current figure to prevent overlay issues in future plots
-    plt.clf()
+#     for k in k_vals:
+#         # Graficar ω vs amplitud para cada valor de k
+#         plt.plot(omega_vals, amplitude_vals, label=f'k = {k:.0f} N/m')
 
-    print(f"Graphic saved to '{file_path}'")
+#     plt.xlabel('ω (rad/s)')
+#     plt.ylabel('Amplitud (m)')
+#     plt.grid(True)
+
+#     # Define the output file path with dt in the filename
+#     file_path = os.path.join(directory, f"omega_vs_amplitude_per_k.png")
+
+#     # Save the plot to the file
+#     plt.savefig(file_path)
+
+#     # Optionally, you can clear the current figure to prevent overlay issues in future plots
+#     plt.clf()
+
+#     print(f"Graphic saved to '{file_path}'")
 
 
 def ensure_output_directory_creation(directory):
