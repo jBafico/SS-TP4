@@ -75,7 +75,7 @@ def obtain_error_adjustment_graph(x_values, y_values):
     plt.axvline(x=best_d, color='r', linestyle='--',label=f"Error={sci_notation(min_error)} Coeficiente Defusion = {sci_notation(best_d)}")
     plt.legend()
 
-    output_name = "observables_with_cuadratic.png"
+    output_name = "cuadratic_error_graph.png"
     output_file = os.path.join(output_directory, output_name)
     os.makedirs(output_directory, exist_ok=True)
     plt.savefig(output_file)
