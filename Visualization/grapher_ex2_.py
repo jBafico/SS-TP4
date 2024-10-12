@@ -1,3 +1,7 @@
+import math
+
+from matplotlib.ticker import ScalarFormatter
+import numpy as np
 from load_most_recent_json import load_most_recent_simulation_json_ex2
 import json
 import os
@@ -6,6 +10,76 @@ import matplotlib.pyplot as plt
 
 
 output_directory = "EJ2"
+
+TRIES = 1000
+
+
+def SuperScriptinate(number):
+  return number.replace('0','⁰').replace('1','¹').replace('2','²').replace('3','³').replace('4','⁴').replace('5','⁵').replace('6','⁶').replace('7','⁷').replace('8','⁸').replace('9','⁹').replace('-','⁻')
+
+def sci_notation(number, sig_fig=2):
+    ret_string = "{0:.{1:d}e}".format(number, sig_fig)
+    a,b = ret_string.split("e")
+    b = int(b)         # removed leading "+" and strips leading zeros too.
+    return a + "x10" + SuperScriptinate(str(b))
+
+
+
+def reduce_to_slope(xs, ys):
+    Y_INTERCEPT = 0
+    LINEAR_FUNCTION = lambda x, m: m * math.sqrt(x) + Y_INTERCEPT
+
+    candidate_slope = 0
+    min_error = np.inf
+    best_d = None
+
+    max_slope = max(ys) / max(xs)
+    slopes = np.arange(0, max_slope * 2, max_slope / TRIES)
+
+
+
+    xs_out = []
+    ys_out = []
+    for slope in slopes:
+        d = slope / 2
+        error = 0
+        for x, y in zip(xs, ys):
+            error += (y - LINEAR_FUNCTION(x, slope))**2
+        if error < min_error:
+            min_error = error
+            candidate_slope = slope
+            best_d = d
+        xs_out.append(d)
+        ys_out.append(error)
+
+    return candidate_slope, min_error , xs_out, ys_out, best_d
+
+
+def obtain_error_adjustment_graph(x_values, y_values):
+    
+
+    _, min_error , xs_out, ys_out, best_d = reduce_to_slope(x_values,y_values)
+
+    ax = plt.gca()
+    ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    ax.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
+
+    # Y-axis formatting
+    ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
+
+    plt.scatter(x=xs_out, y=ys_out)
+    plt.xlabel("D (m\u00b2/s)")
+    plt.ylabel("Error (m\u00b2)")
+    
+    plt.axvline(x=best_d, color='r', linestyle='--',label=f"Error={sci_notation(min_error)} Coeficiente Defusion = {sci_notation(best_d)}")
+    plt.legend()
+
+    output_name = "observables_with_cuadratic.png"
+    output_file = os.path.join(output_directory, output_name)
+    os.makedirs(output_directory, exist_ok=True)
+    plt.savefig(output_file)
+    plt.close()
 
 
 def main():
@@ -33,6 +107,9 @@ def get_k_to_biggest_w(max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str,
                 max_w = float(current_w)
         k_to_w0[k] = max_w
     return k_to_w0
+
+
+
 
         
 
@@ -62,6 +139,11 @@ def aproximation_w_sqrt_k_graph(max_oscilation_amplitudes_by_k_and_w: dict[str, 
     plt.clf()
 
     print(f"Saved plot to '{file_path}'")
+
+    obtain_error_adjustment_graph(x_values, y_values)
+
+
+
 
 
 
