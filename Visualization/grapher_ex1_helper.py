@@ -31,16 +31,16 @@ def create_first_graphic(dt, analytical, beeman, gear5, verlet):
 
     # Plot each function
     # Plot scatter points and lines for each function
-    plt.scatter(x_values, y_values_func1, label="analítica", marker='o')  # Circle marker
-    plt.plot(x_values, y_values_func1, linestyle='--')  # Line to follow
+    plt.scatter(x_values, y_values_func1, label="analítica")  
+    plt.plot(x_values, y_values_func1, linestyle='--')  
 
-    plt.scatter(x_values, y_values_func2, label="beeman", marker='x')  # Cross marker
+    plt.scatter(x_values, y_values_func2, label="beeman")
     plt.plot(x_values, y_values_func2, linestyle='--')
 
-    plt.scatter(x_values, y_values_func3, label="gear5", marker='s')  # Square marker
+    plt.scatter(x_values, y_values_func3, label="gear5") 
     plt.plot(x_values, y_values_func3, linestyle='--')
 
-    plt.scatter(x_values, y_values_func4, label="verlet", marker='d')  # Diamond marker
+    plt.scatter(x_values, y_values_func4, label="verlet") 
     plt.plot(x_values, y_values_func4, linestyle='--')
 
 
@@ -113,8 +113,8 @@ def graphic_item3(error_dictionary):
     # Set both x and y axes to logarithmic scale
 
     # Add labels for the axes
-    plt.xlabel("tiempo (s) (escala logarítmica)")
-    plt.ylabel("posición (m) (escala logarítmica)")
+    plt.xlabel("tiempo (s)")
+    plt.ylabel("posición (m)")
     plt.legend()
 
     plt.xscale('log')
