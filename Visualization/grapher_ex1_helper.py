@@ -45,7 +45,6 @@ def create_first_graphic(dt, analytical, beeman, gear5, verlet):
 
 
     # Add title and labels
-    plt.title(f"Comparación de métodos con dt = {dt}")  # Include dt in the title
     plt.xlabel("tiempo (s)")
     plt.ylabel("posición (m)")
 
