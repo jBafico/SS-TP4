@@ -12,7 +12,7 @@ import io
 output_directory = "EJ2"
 animation_directory = "Animations"
 
-TRIES = 1000
+TRIES = 10000
 
 
 def SuperScriptinate(number):
@@ -37,7 +37,7 @@ def reduce_to_slope(xs, ys):
     best_d = None
 
     max_slope = max(ys) / max(xs)
-    slopes = np.arange(0, max_slope * 2, max_slope / TRIES)
+    slopes = np.arange(0, 2, max_slope / TRIES)
 
     xs_out = []
     ys_out = []
@@ -67,34 +67,40 @@ def obtain_error_adjustment_graph(x_values, y_values):
     ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
     ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
 
-    plt.scatter(x=xs_out, y=ys_out)
+    plt.scatter(x=xs_out,y= ys_out)
     plt.xlabel("D (m\u00b2/s)")
-    plt.ylabel("Error (m\u00b2)")
+    plt.ylabel("Error (rad/s)")
 
-    plt.axvline(x=best_d, color='r', linestyle='--', label=f"Error={sci_notation(min_error)} Coeficiente Defusion = {sci_notation(best_d)}")
-    plt.legend()
+    # Adding vertical and horizontal lines
+    plt.axvline(x=best_d, color='m', linestyle='--', label=f"Coeficiente Defusion = {sci_notation(best_d)}")
+    plt.axhline(y=min_error, color='r', linestyle='--', label=f"Error = {sci_notation(min_error)}")
+    
+    # Moving the legend outside the plot
+    plt.legend(loc='upper left', bbox_to_anchor=(1, 0.5))
 
     output_name = "cuadratic_error_graph.png"
     output_file = os.path.join(output_directory, output_name)
     os.makedirs(output_directory, exist_ok=True)
-    plt.savefig(output_file)
+    plt.savefig(output_file, bbox_inches='tight')  # Ensure everything is saved in the output
     plt.close()
-
+    plt.clf()
 
 def main():
     with open("item2config.json", "r") as f:
         config = json.load(f)
 
-    json_data = load_most_recent_simulation_json_ex2("../outputs")
+    # json_data = load_most_recent_simulation_json_ex2("../outputs")
 
     if config["animations"]:
         results_by_k_dict: dict[str, dict[str, list[list[dict[str, float]]]]] = json_data['resultsByKAndW']
         generate_animations(results_by_k_dict)
-    max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] = calc_max_oscilation_amplitudes_by_w(json_data)
+    #max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] = calc_max_oscilation_amplitudes_by_w(json_data)
     if config["item1and2graphs"]:
         amplitude_vs_omega_graphs_for_different_k(max_oscilation_amplitudes_by_k_and_w)
     if config["item3graph"]:
-        aproximation_w_sqrt_k_graph(max_oscilation_amplitudes_by_k_and_w)
+        with open("output_for_ej2_item_3.json") as f2:
+            json_output = json.load(f2)
+        aproximation_w_sqrt_k_graph(json_output)
 
 
 def get_k_to_biggest_w(max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]]):
@@ -111,11 +117,13 @@ def get_k_to_biggest_w(max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str,
     return k_to_w0
 
 
-def aproximation_w_sqrt_k_graph(max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]]):
-    k_to_w0 = get_k_to_biggest_w(max_oscilation_amplitudes_by_k_and_w)
+def aproximation_w_sqrt_k_graph(max_oscilation_amplitudes_by_k_and_w: list[dict[str,float]]):
 
-    x_values = [float(k) for k in k_to_w0.keys()]
-    y_values = [w0 for w0 in k_to_w0.values()]
+    x_values = []
+    y_values = []
+    for current_dict in max_oscilation_amplitudes_by_k_and_w:
+        x_values.append(current_dict["k"])
+        y_values.append(current_dict["w0"])
 
     ensure_output_directory_creation(output_directory)
     plt.scatter(x_values, y_values)
