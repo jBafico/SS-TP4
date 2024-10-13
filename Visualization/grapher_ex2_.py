@@ -171,7 +171,7 @@ def calc_max_oscilation_amplitude_in_dt(particles_in_dt: list[dict[str, float]])
 def amplitude_vs_omega_graph(max_oscilation_amplitudes_by_w: dict[str, list[float]], current_k: str):
     print('Plotting amplitude vs omega for k =', current_k)
     omega_vals = [float(w) for w in max_oscilation_amplitudes_by_w.keys()]
-    amplitude_vals = [max(amplitudes) for amplitudes in max_oscilation_amplitudes_by_w.values()]
+    amplitude_vals = [float(amplitudes) for amplitudes in max_oscilation_amplitudes_by_w.values()]
 
     ensure_output_directory_creation(output_directory)
     plt.scatter(omega_vals, amplitude_vals)
@@ -190,6 +190,11 @@ def amplitude_vs_omega_graph(max_oscilation_amplitudes_by_w: dict[str, list[floa
     plt.clf()
 
     print(f"Saved plot to '{file_path}'")
+
+    print("max_w", max(max_oscilation_amplitudes_by_w.values()),"for",current_k)
+
+
+
 
 
 def amplitude_vs_omega_graphs_for_different_k(max_oscilation_amplitudes_by_k_then_w: dict[str, dict[str, list[float]]]):
