@@ -104,7 +104,7 @@ def graphic_item3(error_dictionary):
         y_values = list(values.values())
         
         # Plot the scattered points
-        plt.scatter(x_values, y_values, label=f'{title} (scatter)')
+        plt.scatter(x_values, y_values, label=f'{title}')
         
         # Plot the line connecting the points
         plt.plot(x_values, y_values)
