@@ -9,23 +9,23 @@ import matplotlib.pyplot as plt
 import imageio
 import io
 
-
-
 output_directory = "EJ2"
-animation_directory="Animations"
+animation_directory = "Animations"
 
 TRIES = 1000
 
 
 def SuperScriptinate(number):
-  return number.replace('0','⁰').replace('1','¹').replace('2','²').replace('3','³').replace('4','⁴').replace('5','⁵').replace('6','⁶').replace('7','⁷').replace('8','⁸').replace('9','⁹').replace('-','⁻')
+    return number.replace('0', '⁰').replace('1', '¹').replace('2', '²').replace('3', '³').replace('4', '⁴').replace('5', '⁵').replace('6', '⁶').replace('7',
+                                                                                                                                                        '⁷').replace(
+        '8', '⁸').replace('9', '⁹').replace('-', '⁻')
+
 
 def sci_notation(number, sig_fig=2):
     ret_string = "{0:.{1:d}e}".format(number, sig_fig)
-    a,b = ret_string.split("e")
-    b = int(b)         # removed leading "+" and strips leading zeros too.
+    a, b = ret_string.split("e")
+    b = int(b)  # removed leading "+" and strips leading zeros too.
     return a + "x10" + SuperScriptinate(str(b))
-
 
 
 def reduce_to_slope(xs, ys):
@@ -39,15 +39,13 @@ def reduce_to_slope(xs, ys):
     max_slope = max(ys) / max(xs)
     slopes = np.arange(0, max_slope * 2, max_slope / TRIES)
 
-
-
     xs_out = []
     ys_out = []
     for slope in slopes:
         d = slope / 2
         error = 0
         for x, y in zip(xs, ys):
-            error += (y - LINEAR_FUNCTION(x, slope))**2
+            error += (y - LINEAR_FUNCTION(x, slope)) ** 2
         if error < min_error:
             min_error = error
             candidate_slope = slope
@@ -55,13 +53,11 @@ def reduce_to_slope(xs, ys):
         xs_out.append(d)
         ys_out.append(error)
 
-    return candidate_slope, min_error , xs_out, ys_out, best_d
+    return candidate_slope, min_error, xs_out, ys_out, best_d
 
 
 def obtain_error_adjustment_graph(x_values, y_values):
-    
-
-    _, min_error , xs_out, ys_out, best_d = reduce_to_slope(x_values,y_values)
+    _, min_error, xs_out, ys_out, best_d = reduce_to_slope(x_values, y_values)
 
     ax = plt.gca()
     ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
@@ -74,8 +70,8 @@ def obtain_error_adjustment_graph(x_values, y_values):
     plt.scatter(x=xs_out, y=ys_out)
     plt.xlabel("D (m\u00b2/s)")
     plt.ylabel("Error (m\u00b2)")
-    
-    plt.axvline(x=best_d, color='r', linestyle='--',label=f"Error={sci_notation(min_error)} Coeficiente Defusion = {sci_notation(best_d)}")
+
+    plt.axvline(x=best_d, color='r', linestyle='--', label=f"Error={sci_notation(min_error)} Coeficiente Defusion = {sci_notation(best_d)}")
     plt.legend()
 
     output_name = "cuadratic_error_graph.png"
@@ -91,7 +87,6 @@ def main():
 
     json_data = load_most_recent_simulation_json_ex2("../outputs")
 
-    
     if config["animations"]:
         results_by_k_dict: dict[str, dict[str, list[list[dict[str, float]]]]] = json_data['resultsByKAndW']
         generate_animations(results_by_k_dict)
@@ -102,12 +97,12 @@ def main():
         aproximation_w_sqrt_k_graph(max_oscilation_amplitudes_by_k_and_w)
 
 
-def get_k_to_biggest_w(max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] ):
-    k_to_w0 : dict[str,float] = {}
+def get_k_to_biggest_w(max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]]):
+    k_to_w0: dict[str, float] = {}
     for k, w_to_amplitude_dict in max_oscilation_amplitudes_by_k_and_w.items():
         max_w = None
         max_amplitude = float("-inf")
-        for current_w , amplitude_list in w_to_amplitude_dict.items():
+        for current_w, amplitude_list in w_to_amplitude_dict.items():
             current_max_amplitude = max(amplitude_list)
             if current_max_amplitude > max_amplitude:
                 max_amplitude = current_max_amplitude
@@ -116,21 +111,14 @@ def get_k_to_biggest_w(max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str,
     return k_to_w0
 
 
-
-
-        
-
-def aproximation_w_sqrt_k_graph(max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] ):
-
+def aproximation_w_sqrt_k_graph(max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]]):
     k_to_w0 = get_k_to_biggest_w(max_oscilation_amplitudes_by_k_and_w)
 
     x_values = [float(k) for k in k_to_w0.keys()]
     y_values = [w0 for w0 in k_to_w0.values()]
 
-
-
     ensure_output_directory_creation(output_directory)
-    plt.scatter(x_values,y_values)
+    plt.scatter(x_values, y_values)
     plt.plot(x_values, y_values)
     plt.xlabel("k (kg/s²)")
     plt.ylabel('ω (rad/s)')
@@ -150,16 +138,8 @@ def aproximation_w_sqrt_k_graph(max_oscilation_amplitudes_by_k_and_w: dict[str, 
     obtain_error_adjustment_graph(x_values, y_values)
 
 
-
-
-
-
-    
-
-
-
 def calc_max_oscilation_amplitudes_by_w(json_data: dict[str, dict]) -> dict[str, dict[str, list[float]]]:
-    # This graph analyses results with different Ws and K = 100
+    # This graph analyses results with different Ws and Ks
     results_by_k_dict: dict[str, dict[str, list[list[dict[str, float]]]]] = json_data['resultsByKAndW']
 
     # Key: K, Value: Dict with W as key and List of amplitudes for each dt as value
@@ -169,6 +149,8 @@ def calc_max_oscilation_amplitudes_by_w(json_data: dict[str, dict]) -> dict[str,
         amplitudes_by_w_dict: dict[str, list[float]] = {}
         for w, results_for_w in results_for_k.items():
             print(f"Calculating max oscilation amplitude for k={k} and w={w}")
+            if (k == '100.00' and w == '15.00') or (k == '500.00'):
+                pass
             results_for_w: list[list[dict[str, float]]]
             for particles_in_dt in results_for_w:
                 max_oscilation_amplitude = calc_max_oscilation_amplitude_in_dt(particles_in_dt)
@@ -185,13 +167,14 @@ def calc_max_oscilation_amplitude_in_dt(particles_in_dt: list[dict[str, float]])
             max_oscilation_amplitude = particle['position']
     return max_oscilation_amplitude
 
-def amplitude_vs_omega_graph(max_oscilation_amplitudes_by_w: dict[str,list[float]], current_k: str):
 
+def amplitude_vs_omega_graph(max_oscilation_amplitudes_by_w: dict[str, list[float]], current_k: str):
+    print('Plotting amplitude vs omega for k =', current_k)
     omega_vals = [float(w) for w in max_oscilation_amplitudes_by_w.keys()]
     amplitude_vals = [max(amplitudes) for amplitudes in max_oscilation_amplitudes_by_w.values()]
 
     ensure_output_directory_creation(output_directory)
-    plt.scatter(omega_vals,amplitude_vals)
+    plt.scatter(omega_vals, amplitude_vals)
     plt.plot(omega_vals, amplitude_vals)
     plt.xlabel('ω (rad/s)')
     plt.ylabel('Amplitud (m)')
@@ -209,12 +192,11 @@ def amplitude_vs_omega_graph(max_oscilation_amplitudes_by_w: dict[str,list[float
     print(f"Saved plot to '{file_path}'")
 
 
-def amplitude_vs_omega_graphs_for_different_k(max_oscilation_amplitudes_by_k_then_w: dict[str,dict[str,list[float]]]):
+def amplitude_vs_omega_graphs_for_different_k(max_oscilation_amplitudes_by_k_then_w: dict[str, dict[str, list[float]]]):
     print('Starting to plot')
 
     for k, wsdict in max_oscilation_amplitudes_by_k_then_w.items():
-        amplitude_vs_omega_graph(wsdict,k)
-
+        amplitude_vs_omega_graph(wsdict, k)
 
 
 # def amplitude_vs_omega_graph_with_k(amplitude_vals, omega_vals, k_vals):
@@ -244,10 +226,8 @@ def amplitude_vs_omega_graphs_for_different_k(max_oscilation_amplitudes_by_k_the
 def generate_animations(data):
     ensure_output_directory_creation(animation_directory)
 
-    
     for k, results_for_k in data.items():
-    
-    
+
         for w, results_for_w in results_for_k.items():
             # List to store in-memory images
             frames = []
@@ -255,15 +235,15 @@ def generate_animations(data):
             results_for_w: list[list[dict[str, float]]]
             for particles_in_dt in results_for_w:
                 amplitudes_by_particle_in_dt = {}
-                i=0
+                i = 0
                 for particle in particles_in_dt:
                     amplitudes_by_particle_in_dt.setdefault(i, [])
                     amplitudes_by_particle_in_dt[i].append(particle['position'])
-                    i+=1
-                
+                    i += 1
+
                 frame_buf = plot_simulation_frame_in_memory(amplitudes_by_particle_in_dt.values())
                 frames.append(imageio.imread(frame_buf))
-            
+
             # Create a GIF directly from in-memory images
             gif_buf = io.BytesIO()
             with imageio.get_writer(gif_buf, format='GIF', mode='I', duration=3) as writer:
@@ -277,7 +257,7 @@ def generate_animations(data):
                 print(f"outputing gif _k_{k}_w_{w}")
                 f.write(gif_buf.getvalue())
 
-    
+
 def ensure_output_directory_creation(directory):
     # Check if the directory exists, if not, create it
     if not os.path.exists(directory):
@@ -286,10 +266,11 @@ def ensure_output_directory_creation(directory):
     else:
         print(f"Directory '{directory}' already exists.")
 
+
 # Function to plot a single simulation frame and return as an in-memory image
 def plot_simulation_frame_in_memory(particles):
     fig, ax = plt.subplots()
-    
+
     plt.plot(np.arange(len(particles)), particles, linewidth=2)
 
     # Set limits and aspect ratio
@@ -308,9 +289,6 @@ def plot_simulation_frame_in_memory(particles):
 
     return buf
 
+
 if __name__ == "__main__":
     main()
-
-
-
-

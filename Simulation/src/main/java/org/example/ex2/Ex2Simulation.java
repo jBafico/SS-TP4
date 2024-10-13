@@ -1,10 +1,7 @@
 package org.example.ex2;
 import org.example.interfaces.Simulation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Ex2Simulation implements Simulation<Ex2Params, Ex2Results> {
     public Ex2Results run(Ex2Params params, String timestamp, String outputFilePath){
@@ -12,12 +9,12 @@ public class Ex2Simulation implements Simulation<Ex2Params, Ex2Results> {
         Ex2Particle.setParams(params);
 
         // Create results object
-        Ex2Results results = new Ex2Results(params, new HashMap<>());
+        Ex2Results results = new Ex2Results(params, new TreeMap<>(Double::compareTo));
 
         // Calculate results for each k
         params.kValues().forEach(k -> {
             // Calculate results for each w
-            Map<Double, List<List<Ex2Particle>>> resultsByW = new HashMap<>();
+            Map<Double, List<List<Ex2Particle>>> resultsByW = new TreeMap<>(Double::compareTo);
             for (double w = params.minW(); w <= params.maxW(); w += params.increaseW()){
                 double dt = 1 / ((double)w * 100);
                 List<List<Ex2Particle>> verlet = new ArrayList<>();
