@@ -253,8 +253,15 @@ def generate_animations(data):
             frames = []
             print(f"Animation for k={k} and w={w}")
             results_for_w: list[list[dict[str, float]]]
-            for particles_in_dt in results_for_w:               
-                frame_buf = plot_simulation_frame_in_memory(particles_in_dt)
+            for particles_in_dt in results_for_w:
+                amplitudes_by_particle_in_dt = {}
+                i=0
+                for particle in particles_in_dt:
+                    amplitudes_by_particle_in_dt.setdefault(i, [])
+                    amplitudes_by_particle_in_dt[i].append(particle['position'])
+                    i+=1
+                
+                frame_buf = plot_simulation_frame_in_memory(amplitudes_by_particle_in_dt.values())
                 frames.append(imageio.imread(frame_buf))
             
             # Create a GIF directly from in-memory images
@@ -266,7 +273,7 @@ def generate_animations(data):
             gif_buf.seek(0)  # Rewind the buffer to read the GIF
 
             # Save or use the GIF as needed, for example, to save to a file:
-            with open(f"./simulation_k_{k}_w_{w}.gif", "wb") as f:
+            with open(f"./Animations/simulation_k_{k}_w_{w}.gif", "wb") as f:
                 print(f"outputing gif _k_{k}_w_{w}")
                 f.write(gif_buf.getvalue())
 
@@ -283,15 +290,15 @@ def ensure_output_directory_creation(directory):
 def plot_simulation_frame_in_memory(particles):
     fig, ax = plt.subplots()
     
-    particle_position = plt.plot(np.arange(len(particles)), particles, fill=False, linewidth=2)
-    ax.add_artist(particle_position)
+    plt.plot(np.arange(len(particles)), particles, linewidth=2)
 
     # Set limits and aspect ratio
+    ax.set_ylim(-10, 10)
     ax.set_aspect('equal', 'box')
 
     # Add labels and title
-    ax.set_xlabel('Posición (m)')
-    ax.set_ylabel('Particula')
+    ax.set_xlabel('Particula')
+    ax.set_ylabel('Posición (m)')
 
     # Save the frame as an in-memory image (BytesIO)
     buf = io.BytesIO()
@@ -303,3 +310,7 @@ def plot_simulation_frame_in_memory(particles):
 
 if __name__ == "__main__":
     main()
+
+
+
+
