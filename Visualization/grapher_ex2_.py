@@ -6,10 +6,13 @@ from load_most_recent_json import load_most_recent_simulation_json_ex2
 import json
 import os
 import matplotlib.pyplot as plt
+import imageio
+import io
 
 
 
 output_directory = "EJ2"
+animation_directory="Animations"
 
 TRIES = 1000
 
@@ -88,6 +91,10 @@ def main():
 
     json_data = load_most_recent_simulation_json_ex2("../outputs")
 
+    
+    if config["animations"]:
+        results_by_k_dict: dict[str, dict[str, list[list[dict[str, float]]]]] = json_data['resultsByKAndW']
+        generate_animations(results_by_k_dict)
     max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] = calc_max_oscilation_amplitudes_by_w(json_data)
     if config["item1and2graphs"]:
         amplitude_vs_omega_graphs_for_different_k(max_oscilation_amplitudes_by_k_and_w)
@@ -148,7 +155,7 @@ def aproximation_w_sqrt_k_graph(max_oscilation_amplitudes_by_k_and_w: dict[str, 
 
 
     
-    
+
 
 
 def calc_max_oscilation_amplitudes_by_w(json_data: dict[str, dict]) -> dict[str, dict[str, list[float]]]:
@@ -234,7 +241,36 @@ def amplitude_vs_omega_graphs_for_different_k(max_oscilation_amplitudes_by_k_the
 
 #     print(f"Graphic saved to '{file_path}'")
 
+def generate_animations(data):
+    ensure_output_directory_creation(animation_directory)
 
+    
+    for k, results_for_k in data.items():
+    
+    
+        for w, results_for_w in results_for_k.items():
+            # List to store in-memory images
+            frames = []
+            print(f"Animation for k={k} and w={w}")
+            results_for_w: list[list[dict[str, float]]]
+            for particles_in_dt in results_for_w:               
+                frame_buf = plot_simulation_frame_in_memory(particles_in_dt)
+                frames.append(imageio.imread(frame_buf))
+            
+            # Create a GIF directly from in-memory images
+            gif_buf = io.BytesIO()
+            with imageio.get_writer(gif_buf, format='GIF', mode='I', duration=3) as writer:
+                for frame in frames:
+                    writer.append_data(frame)
+
+            gif_buf.seek(0)  # Rewind the buffer to read the GIF
+
+            # Save or use the GIF as needed, for example, to save to a file:
+            with open(f"./simulation_k_{k}_w_{w}.gif", "wb") as f:
+                print(f"outputing gif _k_{k}_w_{w}")
+                f.write(gif_buf.getvalue())
+
+    
 def ensure_output_directory_creation(directory):
     # Check if the directory exists, if not, create it
     if not os.path.exists(directory):
@@ -243,6 +279,27 @@ def ensure_output_directory_creation(directory):
     else:
         print(f"Directory '{directory}' already exists.")
 
+# Function to plot a single simulation frame and return as an in-memory image
+def plot_simulation_frame_in_memory(particles):
+    fig, ax = plt.subplots()
+    
+    particle_position = plt.plot(np.arange(len(particles)), particles, fill=False, linewidth=2)
+    ax.add_artist(particle_position)
+
+    # Set limits and aspect ratio
+    ax.set_aspect('equal', 'box')
+
+    # Add labels and title
+    ax.set_xlabel('Posición (m)')
+    ax.set_ylabel('Particula')
+
+    # Save the frame as an in-memory image (BytesIO)
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    plt.close(fig)
+    buf.seek(0)  # Rewind the buffer
+
+    return buf
 
 if __name__ == "__main__":
     main()
