@@ -90,11 +90,11 @@ def main():
     if config["animations"]:
         results_by_k_dict: dict[str, dict[str, list[list[dict[str, float]]]]] = json_data['resultsByKAndW']
         generate_animations(results_by_k_dict)
-    max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] = calc_max_oscilation_amplitudes_by_w(json_data)
+    # max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] = calc_max_oscilation_amplitudes_by_w(json_data)
     if config["item1and2graphs"]:
-        amplitude_vs_omega_graphs_for_different_k(max_oscilation_amplitudes_by_k_and_w)
+        amplitude_vs_omega_graphs_for_different_k(json_data['resultsByKAndW'])
     if config["item3graph"]:
-        aproximation_w_sqrt_k_graph(max_oscilation_amplitudes_by_k_and_w)
+        aproximation_w_sqrt_k_graph(json_data)
 
 
 def get_k_to_biggest_w(max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]]):
@@ -149,8 +149,6 @@ def calc_max_oscilation_amplitudes_by_w(json_data: dict[str, dict]) -> dict[str,
         amplitudes_by_w_dict: dict[str, list[float]] = {}
         for w, results_for_w in results_for_k.items():
             print(f"Calculating max oscilation amplitude for k={k} and w={w}")
-            if (k == '100.00' and w == '15.00') or (k == '500.00'):
-                pass
             results_for_w: list[list[dict[str, float]]]
             for particles_in_dt in results_for_w:
                 max_oscilation_amplitude = calc_max_oscilation_amplitude_in_dt(particles_in_dt)
@@ -191,10 +189,9 @@ def amplitude_vs_omega_graph(max_oscilation_amplitudes_by_w: dict[str, list[floa
 
     print(f"Saved plot to '{file_path}'")
 
-    print("max_w", max(max_oscilation_amplitudes_by_w.values()),"for",current_k)
-
-
-
+    # print the key that has the biggest value
+    key_with_biggest_value = [key for key, value in max_oscilation_amplitudes_by_w.items() if value == max(max_oscilation_amplitudes_by_w.values())][0]
+    print(f"k: {current_k}, w0: {key_with_biggest_value}, amplitude: {max(max_oscilation_amplitudes_by_w.values())}")
 
 
 def amplitude_vs_omega_graphs_for_different_k(max_oscilation_amplitudes_by_k_then_w: dict[str, dict[str, list[float]]]):

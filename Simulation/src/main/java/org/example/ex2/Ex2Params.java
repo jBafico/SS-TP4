@@ -12,8 +12,8 @@ public record Ex2Params(
         double A, // Amplitude of the armonic force
         double l, // Initial between the particles
         List<Double> kValues, // List of k values
-        int minW, // Minimum w
-        int maxW, // Maximum w
+        double minW, // Minimum w
+        double maxW, // Maximum w
         double increaseW, // Increase w
         double tf // Final time
 ) implements Params {}

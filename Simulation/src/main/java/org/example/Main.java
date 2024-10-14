@@ -7,6 +7,7 @@ import org.example.ex1.Ex1Simulation;
 import org.example.ex1.ResultsForDt;
 import org.example.ex2.Ex2Particle;
 import org.example.ex2.Ex2Results;
+import org.example.ex2.Ex2ResultsMemoryEfficientManganetus;
 import org.example.ex2.Ex2Simulation;
 import org.example.interfaces.Results;
 
@@ -20,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static org.example.Particle.params;
 
@@ -175,6 +177,32 @@ public class Main {
         writer.write("}");
     }
 
+    private static void ex2ManganetusSerializer(BufferedWriter writer, Ex2Results results) throws IOException {
+        Ex2ResultsMemoryEfficientManganetus resultsByKAndWManganetus = createEx2Manganetus(results);
+        ObjectMapper mapper = new ObjectMapper();  // No pretty printing
+        String jsonString = mapper.writeValueAsString(resultsByKAndWManganetus);
+        writer.write(jsonString);
+    }
+
+    private static Ex2ResultsMemoryEfficientManganetus createEx2Manganetus(Ex2Results results) {
+        TreeMap<Double, TreeMap<Double, Double>> biggestValues = new TreeMap<>();
+        results.resultsByKAndW().forEach((k, resultsByW) -> {
+            biggestValues.put(k, new TreeMap<>());
+            resultsByW.forEach((w, resultsForKAndW) -> {
+                double biggestValue = 0;
+                for (List<Ex2Particle> particleList : resultsForKAndW) {
+                    for (Ex2Particle particle : particleList) {
+                        if (particle.getPosition() > biggestValue) {
+                            biggestValue = particle.getPosition();
+                            biggestValues.get(k).put(w, biggestValue);
+                        }
+                    }
+                }
+            });
+        });
+        return new Ex2ResultsMemoryEfficientManganetus(results.params(), biggestValues);
+    }
+
 
     private static void writeOutput(Results results, String timestamp, String outputFilePath, int exNumber) {
         // Create an ObjectMapper instance
@@ -193,7 +221,8 @@ public class Main {
                 ex1Serializer(jsonGenerator,ex1Results);
                 return;
             }
-            ex2Serializer(writer,(Ex2Results) results);
+//            ex2Serializer(writer,(Ex2Results) results);
+            ex2ManganetusSerializer(writer,(Ex2Results) results);
 
 
         } catch (IOException e) {

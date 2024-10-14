@@ -16,6 +16,7 @@ public class Ex2Simulation implements Simulation<Ex2Params, Ex2Results> {
             // Calculate results for each w
             Map<Double, List<List<Ex2Particle>>> resultsByW = new TreeMap<>(Double::compareTo);
             for (double w = params.minW(); w <= params.maxW(); w += params.increaseW()){
+                System.out.println("Calculating results for k = " + k + " and w = " + w);
                 double dt = 1 / ((double)w * 100);
                 List<List<Ex2Particle>> verlet = new ArrayList<>();
                 for (double t = 0; t <= params.tf(); t += dt) {
