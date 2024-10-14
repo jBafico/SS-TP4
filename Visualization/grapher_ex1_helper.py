@@ -31,16 +31,15 @@ def create_first_graphic(dt, analytical, beeman, gear5, verlet):
 
     # Plot each function
     # Plot scatter points and lines for each function
-    plt.scatter(x_values, y_values_func1, label="analítica")  
-    plt.plot(x_values, y_values_func1, linestyle='--')  
+    plt.plot(x_values, y_values_func1, label="analítica", linestyle='-', marker=None)  # Use solid line
 
-    plt.scatter(x_values, y_values_func2, label="beeman")
+    plt.scatter(x_values, y_values_func2, label="beeman", marker='o')
     plt.plot(x_values, y_values_func2, linestyle='--')
 
-    plt.scatter(x_values, y_values_func3, label="gear5") 
+    plt.scatter(x_values, y_values_func3, label="gear5", marker='x') 
     plt.plot(x_values, y_values_func3, linestyle='--')
 
-    plt.scatter(x_values, y_values_func4, label="verlet") 
+    plt.scatter(x_values, y_values_func4, label="verlet", marker='d') 
     plt.plot(x_values, y_values_func4, linestyle='--')
 
 

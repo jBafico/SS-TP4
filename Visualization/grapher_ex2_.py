@@ -233,6 +233,7 @@ def generate_animations(data):
             frames = []
             print(f"Animation for k={k} and w={w}")
             results_for_w: list[list[dict[str, float]]]
+            time=0
             for particles_in_dt in results_for_w:
                 amplitudes_by_particle_in_dt = {}
                 i = 0
@@ -240,9 +241,10 @@ def generate_animations(data):
                     amplitudes_by_particle_in_dt.setdefault(i, [])
                     amplitudes_by_particle_in_dt[i].append(particle['position'])
                     i += 1
-
-                frame_buf = plot_simulation_frame_in_memory(amplitudes_by_particle_in_dt.values())
-                frames.append(imageio.imread(frame_buf))
+                if time%50==0:
+                    frame_buf = plot_simulation_frame_in_memory(amplitudes_by_particle_in_dt.values())
+                    frames.append(imageio.imread(frame_buf))
+                time+=1
 
             # Create a GIF directly from in-memory images
             gif_buf = io.BytesIO()
@@ -271,11 +273,10 @@ def ensure_output_directory_creation(directory):
 def plot_simulation_frame_in_memory(particles):
     fig, ax = plt.subplots()
 
-    plt.plot(np.arange(len(particles)), particles, linewidth=2)
+    plt.scatter(np.arange(len(particles)), particles, linewidth=2)
 
     # Set limits and aspect ratio
-    ax.set_ylim(-10, 10)
-    ax.set_aspect('equal', 'box')
+    ax.set_ylim(-1, 1)
 
     # Add labels and title
     ax.set_xlabel('Particula')
@@ -286,6 +287,7 @@ def plot_simulation_frame_in_memory(particles):
     plt.savefig(buf, format='png')
     plt.close(fig)
     buf.seek(0)  # Rewind the buffer
+    print("I did an image")
 
     return buf
 
