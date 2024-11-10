@@ -90,11 +90,47 @@ def main():
     if config["animations"]:
         results_by_k_dict: dict[str, dict[str, list[list[dict[str, float]]]]] = json_data['resultsByKAndW']
         generate_animations(results_by_k_dict)
+    
+    amplitude_vs_time_graph(json_data)
     max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] = calc_max_oscilation_amplitudes_by_w(json_data)
     if config["item1and2graphs"]:
         amplitude_vs_omega_graphs_for_different_k(max_oscilation_amplitudes_by_k_and_w)
     if config["item3graph"]:
         aproximation_w_sqrt_k_graph(max_oscilation_amplitudes_by_k_and_w)
+
+
+def amplitude_vs_time_graph(data:dict[str, dict[str, list[float]]]):
+    tf= data["params"]["tf"]
+    results_by_k_dict: dict[str, dict[str, list[list[dict[str, float]]]]] = data['resultsByKAndW']
+    ensure_output_directory_creation(output_directory)
+    for k, w_to_particle_dict in results_by_k_dict.items():
+        for current_w, particle_list_per_timestep in w_to_particle_dict.items():
+            times= np.arange(0, tf, 1/(100*float(current_w)))
+            for i, timestep in enumerate(times):
+                # Gather all xPositions for the current timestep
+                x_positions = [
+                    particle["position"]
+                    for particle in particle_list_per_timestep[i]
+                    if "position" in particle
+                ]
+                
+                # Plot all particle positions at this timestep
+                plt.scatter([timestep] * len(x_positions), x_positions, color="blue")
+
+            plt.xlabel("Tiempo (s)")
+            plt.ylabel('Amplitud (m)')
+            plt.grid(True)
+
+            # Define the output file path with dt in the filename
+            file_path = os.path.join(output_directory, f"amplitude_vs_time_for_k_{k}_w_{current_w}.png")
+
+            # Save the plot to the file
+            plt.savefig(file_path)
+
+            # Optionally, you can clear the current figure to prevent overlay issues in future plots
+            plt.clf()
+
+            print(f"Saved plot to '{file_path}'")
 
 
 def get_k_to_biggest_w(max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]]):
