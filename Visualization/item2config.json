@@ -1,5 +1,6 @@
 {
-    "item1and2graphs": true,
-    "item3graph": true,
+    "amplitudegraphs": true,
+    "item1and2graphs": false,
+    "item3graph": false,
     "animations": false
 }

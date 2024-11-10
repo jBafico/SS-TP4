@@ -90,8 +90,8 @@ def main():
     if config["animations"]:
         results_by_k_dict: dict[str, dict[str, list[list[dict[str, float]]]]] = json_data['resultsByKAndW']
         generate_animations(results_by_k_dict)
-    
-    amplitude_vs_time_graph(json_data)
+    if config["amplitudegraphs"]:
+        amplitude_vs_time_graph(json_data)
     max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] = calc_max_oscilation_amplitudes_by_w(json_data)
     if config["item1and2graphs"]:
         amplitude_vs_omega_graphs_for_different_k(max_oscilation_amplitudes_by_k_and_w)
