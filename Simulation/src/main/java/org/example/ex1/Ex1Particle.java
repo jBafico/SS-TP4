@@ -5,7 +5,7 @@ import org.example.Particle;
 
 public class Ex1Particle extends Particle {
     @Setter
-    protected static Ex1Params params;
+    protected static Ex1SimulationInfo params;
 
     private Double r2;
     private Double r3;

@@ -1,7 +1,5 @@
 package org.example.ex1;
 
-import org.example.interfaces.Params;
-
 import java.util.List;
 
 public record Ex1Params(
@@ -11,6 +9,7 @@ public record Ex1Params(
         double r0, // Initial position
         double A, // Constant to calculate initial velocity
         List<Double> dts, // Time steps
+        int saveInterval, // Save every n steps
         double tf, // Final time
         int repetitions // Number of repetitions
-) implements Params {}
+){}

@@ -1,66 +1,44 @@
 package org.example.ex1;
 
-import org.example.interfaces.Simulation;
+import org.example.MemoryFriendlyArrayList;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+public class Ex1Simulation {
+    public Ex1Results run(Ex1SimulationInfo ex1SimulationInfo) {
+        MemoryFriendlyArrayList<Ex1Particle> analytical = new MemoryFriendlyArrayList<>(ex1SimulationInfo.saveInterval(), 5);
+        MemoryFriendlyArrayList<Ex1Particle> beeman = new MemoryFriendlyArrayList<>(ex1SimulationInfo.saveInterval(), 5);
+        MemoryFriendlyArrayList<Ex1Particle> verlet = new MemoryFriendlyArrayList<>(ex1SimulationInfo.saveInterval(), 5);
+        MemoryFriendlyArrayList<Ex1Particle> gear5 = new MemoryFriendlyArrayList<>(ex1SimulationInfo.saveInterval(), 5);
+        double dt = ex1SimulationInfo.dt();
 
-public class Ex1Simulation implements Simulation<Ex1Params, Ex1Results> {
-    @Override
-    public Ex1Results run(Ex1Params params, String timestamp, String outputFilePath) {
-        // Set class variable params
-        Ex1Particle.setParams(params);
+        // Set up the Ex1Particle class
+        Ex1Particle.setParams(ex1SimulationInfo);
 
-        // Create results object
-        Ex1Results ex1Results = new Ex1Results(params, new HashMap<>());
+        // Add the initial particle
+        analytical.add(new Ex1Particle(dt));
+        beeman.add(new Ex1Particle(dt));
+        gear5.add(new Ex1Particle(dt));
+        verlet.add(new Ex1Particle(dt));
 
-        // Run simulation for each repetition
-        for (int repetitionNo = 0; repetitionNo < params.repetitions(); repetitionNo++) {
-            List<ResultsForDt> resultsForRepetition = new ArrayList<>();
+        // Use inverse euler to approximate a particle before the initial particle
+        Ex1Particle previousBeeman = beeman.getFirst().createEulerPreviousParticle();
+        Ex1Particle previousVerlet = verlet.getFirst().createEulerPreviousParticle();
 
-            // Run simulation for each dt
-            for (double dt : params.dts()) {
-                List<Ex1Particle> analytical = new ArrayList<>();
-                List<Ex1Particle> beeman = new ArrayList<>();
-                List<Ex1Particle> verlet = new ArrayList<>();
-                List<Ex1Particle> gear5 = new ArrayList<>();
-                for (double t = 0; t <= params.tf(); t += dt) {
-                    if (t == 0) {
-                        // Add the initial particle
-                        analytical.add(new Ex1Particle(dt));
-                        beeman.add(new Ex1Particle(dt));
-                        gear5.add(new Ex1Particle(dt));
-                        verlet.add(new Ex1Particle(dt));
+        // Add the approximated particle before the initial particle
+        // This is because Beeman and Verlet need two previous particles to calculate the next one
+        beeman.addFirst(previousBeeman);
+        verlet.addFirst(previousVerlet);
 
-                        // Use inverse euler to approximate a particle before the initial particle
-                        Ex1Particle previousBeeman = beeman.getFirst().createEulerPreviousParticle();
-                        Ex1Particle previousVerlet = verlet.getFirst().createEulerPreviousParticle();
-
-                        // Add the approximated particle before the initial particle
-                        // This is because Beeman and Verlet need two previous particles to calculate the next one
-                        beeman.addFirst(previousBeeman);
-                        verlet.addFirst(previousVerlet);
-                    } else {
-                        analytical.add(analytical.getLast().createNextAnalytical());
-                        beeman.add(beeman.getLast().createNextBeeman(beeman.get(beeman.size() - 2)));
-                        gear5.add(gear5.getLast().createNextGear());
-                        verlet.add(verlet.getLast().createNextVerlet(verlet.get(verlet.size() - 2)));
-                    }
-
-                }
-
-                // Remove the initial particle that was calculated with inverse euler
-                beeman.removeFirst();
-                verlet.removeFirst();
-
-
-                // Save all results for this configuration
-                resultsForRepetition.add(new ResultsForDt(dt, analytical, beeman, gear5, verlet));
-            }
-            ex1Results.resultsByRepetitionNo().put(repetitionNo, resultsForRepetition);
+        for (double t = 0; t <= ex1SimulationInfo.tf(); t += dt) {
+            analytical.add(analytical.getLast().createNextAnalytical());
+            beeman.add(beeman.getLast().createNextBeeman(beeman.getSecondLast()));
+            gear5.add(gear5.getLast().createNextGear());
+            verlet.add(verlet.getLast().createNextVerlet(verlet.getSecondLast()));
         }
 
-        return ex1Results;
+        // Remove the initial particle that was calculated with inverse euler
+        beeman.removeFirst();
+        verlet.removeFirst();
+
+        return new Ex1Results(ex1SimulationInfo, new ResultsForDt(dt, analytical.getList(), beeman.getList(), gear5.getList(), verlet.getList()));
     }
 }

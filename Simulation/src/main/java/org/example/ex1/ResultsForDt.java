@@ -11,7 +11,6 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class ResultsForDt {
-
     public double dt;
     public List<Ex1Particle> analytical;
     public List<Ex1Particle> beeman;

@@ -5,9 +5,10 @@
     "m": 70,
     "r0": 1,
     "A": 1,
-    "dts": [0.01],
-    "tf": 2.0,
-    "repetitions": 1
+    "dts": [0.01, 0.005, 0.001],
+    "tf": 20.0,
+    "repetitions": 2,
+    "saveInterval": 10
   },
   "ex2Params": {
     "N": 100,
