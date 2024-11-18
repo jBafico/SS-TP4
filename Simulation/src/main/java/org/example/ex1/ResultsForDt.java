@@ -16,5 +16,4 @@ public class ResultsForDt {
     public List<Ex1Particle> beeman;
     public List<Ex1Particle> gear5;
     public List<Ex1Particle> verlet;
-
 }

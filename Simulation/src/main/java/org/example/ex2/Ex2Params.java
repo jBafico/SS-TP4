@@ -1,9 +1,5 @@
 package org.example.ex2;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import org.example.interfaces.Params;
-
 import java.util.List;
 
 public record Ex2Params(
@@ -15,5 +11,6 @@ public record Ex2Params(
         int minW, // Minimum w
         int maxW, // Maximum w
         double increaseW, // Increase w
-        double tf // Final time
-) implements Params {}
+        double tf, // Final time
+        int saveInterval // Save every n steps
+){}

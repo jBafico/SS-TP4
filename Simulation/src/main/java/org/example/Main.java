@@ -1,27 +1,16 @@
 package org.example;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.ex1.*;
-import org.example.ex2.Ex2Particle;
-import org.example.ex2.Ex2Results;
-import org.example.ex2.Ex2Simulation;
-import org.example.interfaces.Results;
+import org.example.ex2.*;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import static org.example.Particle.params;
 
 public class Main {
     public static void main(String[] args) {
@@ -44,6 +33,8 @@ public class Main {
 
         // Get the current timestamp
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+
+        // Run ex1 simulations
         if (params.ex1Params() != null) {
             System.out.println("STARTED EX1 SIMULATIONS ---------------------");
             // Iterate through the repetitions
@@ -63,92 +54,27 @@ public class Main {
             }
         }
 
-//        if (params.ex2Params() != null) {
-//            System.out.println("Running ex2 simulation...");
-//            Ex2Simulation ex2Simulation = new Ex2Simulation();
-//            Ex2Results ex2Results = ex2Simulation.run(params.ex2Params(), timestamp, "./outputs");
-//            System.out.println("Ex2 simulation finished!");
-//
-//            System.out.println("Writing ex2 output...");
-//            writeOutput(ex2Results, timestamp, "./outputs", 2);
-//            System.out.println("Ex2 output written!");
-//        }
-
-
-        System.out.println("Simulation finished!");
-    }
-
-
-    private static void ex2Serializer(BufferedWriter writer, Ex2Results results) throws IOException {
-        Map<Double, Map<Double, List<List<Ex2Particle>>>> resultsByKAndW = results.resultsByKAndW();
-        ObjectMapper mapper = new ObjectMapper();  // No pretty printing
-
-        writer.write("{");
-        writer.write("\"params\":");
-        writer.write(mapper.writeValueAsString(results.params()));  // No pretty printing here
-        writer.write(",");
-        writer.write("\"resultsByKAndW\": {");
-        resultsByKAndW.forEach((k, resultsByW) -> {
-            try {
-                writer.write(String.format("\"%.2f\": {", k));
-                resultsByW.forEach((w, resultsForKAndW) -> {
-                    try {
-                        System.out.println("Writing results for k: " + k + " and w: " + w);
-                        writer.write(String.format("\"%.2f\": [", w));
-                        for (List<Ex2Particle> particleList : resultsForKAndW) {
-                            String particleListString = mapper.writeValueAsString(particleList);  // No pretty printing
-                            writer.write(particleListString);
-                            if (resultsForKAndW.indexOf(particleList) != resultsForKAndW.size() - 1) {
-                                writer.write(",");
-                            }
-                        }
-                        if (resultsByW.get(w) != resultsByW.values().toArray()[resultsByW.size() - 1]) {
-                            writer.write("],");
-                        } else {
-                            writer.write("]");
-                        }
-                    } catch (IOException e) {
-                        throw new RuntimeException("Could not write files.", e);
-                    }
-                });
-                if (resultsByKAndW.get(k) != resultsByKAndW.values().toArray()[resultsByKAndW.size() - 1]) {
-                    writer.write("},");
-                } else {
-                    writer.write("}");
+        // Run ex2 simulations
+        if (params.ex2Params() != null) {
+            System.out.println("STARTED EX2 SIMULATIONS ---------------------");
+            final Ex2Params p = params.ex2Params();
+            p.kValues().forEach(k -> {
+                final double finalK = k;
+                // Iterate through the w values
+                for (double w = p.minW(); w <= p.maxW(); w += p.increaseW()) {
+                    final Ex2SimulationInfo ex2SimulationInfo = new Ex2SimulationInfo(p.N(), p.m(), p.A(), p.l(), finalK, w, p.tf(), p.saveInterval());
+                    System.out.println("Running ex2 simulation with k: " + finalK + " and w: " + w);
+                    Ex2Simulation ex2Simulation = new Ex2Simulation();
+                    // Run the simulation
+                    Ex2Results ex2Results = ex2Simulation.run(ex2SimulationInfo);
+                    // Write the output
+                    writeOutput(ex2Results, "./outputs/ex2_results/" + timestamp, "k_" + finalK + "_w_" + w + ".json");
                 }
-            } catch (IOException e) {
-                throw new RuntimeException("Could not write files.", e);
-            }
-        });
-        writer.write("}");
-        writer.write("}");
+            });
+            System.out.println("FINISHED EX2 SIMULATIONS ---------------------");
+        }
     }
 
-
-//    private static void writeOutput(Results results, String timestamp, String outputFilePath, int exNumber) {
-//        // Create an ObjectMapper instance
-//        ObjectMapper mapper = new ObjectMapper();
-//
-//        String finalFilePath = String.format("%s/ex%d_results_%s.json", outputFilePath, exNumber, timestamp);
-//        try (BufferedWriter writer = Files.newBufferedWriter(
-//                Paths.get(finalFilePath),
-//                StandardOpenOption.WRITE,
-//                StandardOpenOption.CREATE,
-//                StandardOpenOption.TRUNCATE_EXISTING
-//        )) {
-//            // Create a JsonGenerator for incremental writing
-//            JsonGenerator jsonGenerator = mapper.getFactory().createGenerator(writer);
-//            if (results instanceof Ex1Results ex1Results) {
-//                ex1Serializer(jsonGenerator,ex1Results);
-//                return;
-//            }
-//            ex2Serializer(writer,(Ex2Results) results);
-//
-//
-//        } catch (IOException e) {
-//            throw new RuntimeException("Could not write files.", e);
-//        }
-//    }
 
     public static void writeOutput(Object results, String outputDirectoryPath, String filename) {
         try {

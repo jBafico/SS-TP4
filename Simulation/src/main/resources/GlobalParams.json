@@ -15,10 +15,11 @@
     "m": 0.001,
     "A": 0.01,
     "l": 0.001,
-    "kValues": [100],
+    "kValues": [100, 500, 1000, 5000, 10000],
     "minW": 8,
     "maxW": 12,
-    "increaseW": 0.5,
-    "tf": 10.0
+    "increaseW": 0.01,
+    "tf": 100.0,
+    "saveInterval": 10
   }
 }

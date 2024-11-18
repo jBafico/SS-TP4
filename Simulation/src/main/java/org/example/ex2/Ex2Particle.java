@@ -3,12 +3,10 @@ package org.example.ex2;
 import lombok.Setter;
 import org.example.Particle;
 
-import java.util.function.BiFunction;
-
 
 public class Ex2Particle extends Particle {
     @Setter
-    protected static Ex2Params params;
+    protected static Ex2SimulationInfo params;
 
     private final double w;
     private final double k;
