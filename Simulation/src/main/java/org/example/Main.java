@@ -63,12 +63,12 @@ public class Main {
                 // Iterate through the w values
                 for (double w = p.minW(); w <= p.maxW(); w += p.increaseW()) {
                     final Ex2SimulationInfo ex2SimulationInfo = new Ex2SimulationInfo(p.N(), p.m(), p.A(), p.l(), finalK, w, p.tf(), p.saveInterval());
-                    System.out.println("Running ex2 simulation with k: " + finalK + " and w: " + w);
+                    System.out.println("Running ex2 simulation with k: " + finalK + " and w: " + String.format("%.2f", w));
                     Ex2Simulation ex2Simulation = new Ex2Simulation();
                     // Run the simulation
                     Ex2Results ex2Results = ex2Simulation.run(ex2SimulationInfo);
                     // Write the output
-                    writeOutput(ex2Results, "./outputs/ex2_results/" + timestamp, "k_" + finalK + "_w_" + w + ".json");
+                    writeOutput(ex2Results, "./outputs/ex2_results/" + timestamp, "k_" + finalK + "_w_" + String.format("%.2f", w) + ".json");
                 }
             });
             System.out.println("FINISHED EX2 SIMULATIONS ---------------------");
