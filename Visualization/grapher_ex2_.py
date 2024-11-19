@@ -81,6 +81,24 @@ def obtain_error_adjustment_graph(x_values, y_values):
     plt.savefig(output_file)
     plt.close()
 
+def order_dict_by_keys(nested_dict: dict) -> dict:
+    """
+    Orders a nested dictionary and its sub-dictionaries by their keys.
+
+    Args:
+        nested_dict (dict): A dictionary of dictionaries to be ordered.
+
+    Returns:
+        dict: An ordered dictionary with sub-dictionaries also ordered by their keys.
+    """
+    return {
+        outer_key: {
+            inner_key: nested_dict[outer_key][inner_key]
+            for inner_key in sorted(nested_dict[outer_key].keys(), key=lambda x: float(x))
+        }
+        for outer_key in sorted(nested_dict.keys(), key=lambda x: float(x))
+    }
+
 
 def main():
     with open("item2config.json", "r") as f:
@@ -94,10 +112,11 @@ def main():
     if config["amplitudegraphs"]:
         amplitude_vs_time_graph(archivos, 100, 10.0)
     max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] = calc_max_oscilation_amplitudes_by_w(archivos)
+    ordered_max_oscilation_amplitudes = order_dict_by_keys(max_oscilation_amplitudes_by_k_and_w)
     if config["item1and2graphs"]:
-        amplitude_vs_omega_graphs_for_different_k(max_oscilation_amplitudes_by_k_and_w)
+        amplitude_vs_omega_graphs_for_different_k(ordered_max_oscilation_amplitudes)
     if config["item3graph"]:
-        aproximation_w_sqrt_k_graph(max_oscilation_amplitudes_by_k_and_w)
+        aproximation_w_sqrt_k_graph(ordered_max_oscilation_amplitudes)
 
 
 def amplitude_vs_time_graph(archivos, chosen_k, chosen_w):
