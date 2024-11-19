@@ -1,6 +1,6 @@
 {
-    "amplitudegraphs": true,
-    "item1and2graphs": false,
-    "item3graph": false,
+    "amplitudegraphs": false,
+    "item1and2graphs": true,
+    "item3graph": true,
     "animations": false
 }

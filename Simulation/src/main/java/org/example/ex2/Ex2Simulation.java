@@ -10,7 +10,7 @@ public class Ex2Simulation {
         Ex2Particle.setParams(params);
 
         double dt = 1 / (params.w() * 100);
-        MemoryFriendlyArrayList<List<Ex2Particle>> verlet = new MemoryFriendlyArrayList<>(params.saveInteval(), 5);
+        MemoryFriendlyArrayList<List<Ex2Particle>> verlet = new MemoryFriendlyArrayList<>((int) (params.saveInteval()* params.w()), 5);
         for (double t = 0; t <= params.tf(); t += dt) {
             if (t == 0) {
                 // Add initial particles to list

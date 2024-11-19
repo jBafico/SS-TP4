@@ -1,25 +1,14 @@
 {
-  "ex1Params": {
-    "k": 10000,
-    "y": 100,
-    "m": 70,
-    "r0": 1,
-    "A": 1,
-    "dts": [0.01, 0.005, 0.001],
-    "tf": 20.0,
-    "repetitions": 2,
-    "saveInterval": 10
-  },
   "ex2Params": {
     "N": 100,
     "m": 0.001,
     "A": 0.01,
     "l": 0.001,
-    "kValues": [100, 500, 1000, 5000, 10000],
-    "minW": 8,
-    "maxW": 12,
-    "increaseW": 0.01,
-    "tf": 100.0,
+    "kValues": [10000],
+    "minW": 95,
+    "maxW": 105,
+    "increaseW": 0.1,
+    "tf": 300.0,
     "saveInterval": 10
   }
 }

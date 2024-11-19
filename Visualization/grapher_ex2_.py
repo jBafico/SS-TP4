@@ -8,6 +8,7 @@ import os
 import matplotlib.pyplot as plt
 import imageio
 import io
+import glob
 
 output_directory = "EJ2"
 animation_directory = "Animations"
@@ -85,52 +86,55 @@ def main():
     with open("item2config.json", "r") as f:
         config = json.load(f)
 
-    json_data = load_most_recent_simulation_json_ex2("../outputs")
+    ruta_archivos = load_most_recent_simulation_json_ex2()
+    archivos = glob.glob(os.path.join(ruta_archivos, '*.json'))
 
     if config["animations"]:
-        results_by_k_dict: dict[str, dict[str, list[list[dict[str, float]]]]] = json_data['resultsByKAndW']
-        generate_animations(results_by_k_dict)
+        generate_animations(archivos, 100, 10.0)
     if config["amplitudegraphs"]:
-        amplitude_vs_time_graph(json_data)
-    max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] = calc_max_oscilation_amplitudes_by_w(json_data)
+        amplitude_vs_time_graph(archivos, 100, 10.0)
+    max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]] = calc_max_oscilation_amplitudes_by_w(archivos)
     if config["item1and2graphs"]:
         amplitude_vs_omega_graphs_for_different_k(max_oscilation_amplitudes_by_k_and_w)
     if config["item3graph"]:
         aproximation_w_sqrt_k_graph(max_oscilation_amplitudes_by_k_and_w)
 
 
-def amplitude_vs_time_graph(data:dict[str, dict[str, list[float]]]):
-    tf= data["params"]["tf"]
-    results_by_k_dict: dict[str, dict[str, list[list[dict[str, float]]]]] = data['resultsByKAndW']
-    ensure_output_directory_creation(output_directory)
-    for k, w_to_particle_dict in results_by_k_dict.items():
-        for current_w, particle_list_per_timestep in w_to_particle_dict.items():
-            times= np.arange(0, tf, 1/(100*float(current_w)))
-            for i, timestep in enumerate(times):
-                # Gather all xPositions for the current timestep
-                x_positions = [
-                    particle["position"]
-                    for particle in particle_list_per_timestep[i]
-                    if "position" in particle
-                ]
-                
-                # Plot all particle positions at this timestep
-                plt.scatter([timestep] * len(x_positions), x_positions, color="blue")
+def amplitude_vs_time_graph(archivos, chosen_k, chosen_w):
+    for archivo in archivos:
+        with open(archivo, 'r') as f:
+            data = json.load(f)
+            tf= data["params"]["tf"]
+            k= data['params']['k']
+            w=data['params']['w']
+            if(k==chosen_k and round(w, 2)==chosen_w):
+                ensure_output_directory_creation(output_directory)
+                for particle_list_per_timestep in data['results']:
+                        time=particle_list_per_timestep[0]['time']
+                        x_positions = [
+                            particle["position"]
+                            for particle in particle_list_per_timestep
+                            if "position" in particle
+                        ]
+                                    
+                        # Plot all particle positions at this timestep
+                        plt.scatter([time] * len(x_positions), x_positions, color="blue")
+                        print("I scattered some points in the graph. Timestep: " + str(time))
 
-            plt.xlabel("Tiempo (s)")
-            plt.ylabel('Amplitud (m)')
-            plt.grid(True)
+                plt.xlabel("Tiempo (s)")
+                plt.ylabel('Amplitud (m)')
+                plt.grid(True)
 
-            # Define the output file path with dt in the filename
-            file_path = os.path.join(output_directory, f"amplitude_vs_time_for_k_{k}_w_{current_w}.png")
+                # Define the output file path with dt in the filename
+                file_path = os.path.join(output_directory, f"amplitude_vs_time_for_k_{k}_w_{w}.png")
 
-            # Save the plot to the file
-            plt.savefig(file_path)
+                # Save the plot to the file
+                plt.savefig(file_path)
 
-            # Optionally, you can clear the current figure to prevent overlay issues in future plots
-            plt.clf()
+                # Optionally, you can clear the current figure to prevent overlay issues in future plots
+                plt.clf()
 
-            print(f"Saved plot to '{file_path}'")
+                print(f"Saved plot to '{file_path}'")
 
 
 def get_k_to_biggest_w(max_oscilation_amplitudes_by_k_and_w: dict[str, dict[str, list[float]]]):
@@ -174,25 +178,33 @@ def aproximation_w_sqrt_k_graph(max_oscilation_amplitudes_by_k_and_w: dict[str, 
     obtain_error_adjustment_graph(x_values, y_values)
 
 
-def calc_max_oscilation_amplitudes_by_w(json_data: dict[str, dict]) -> dict[str, dict[str, list[float]]]:
-    # This graph analyses results with different Ws and Ks
-    results_by_k_dict: dict[str, dict[str, list[list[dict[str, float]]]]] = json_data['resultsByKAndW']
-
+def calc_max_oscilation_amplitudes_by_w(archivos) -> dict[str, dict[str, list[float]]]:
     # Key: K, Value: Dict with W as key and List of amplitudes for each dt as value
     amplitudes_by_k_and_w_dict: dict[str, dict[str, list[float]]] = {}
-    for k, results_for_k in results_by_k_dict.items():
-        # Key: W, Value: List of amplitudes for each dt
-        amplitudes_by_w_dict: dict[str, list[float]] = {}
-        for w, results_for_w in results_for_k.items():
-            print(f"Calculating max oscilation amplitude for k={k} and w={w}")
-            if (k == '100.00' and w == '15.00') or (k == '500.00'):
-                pass
-            results_for_w: list[list[dict[str, float]]]
-            for particles_in_dt in results_for_w:
-                max_oscilation_amplitude = calc_max_oscilation_amplitude_in_dt(particles_in_dt)
-                amplitudes_by_w_dict.setdefault(w, [])
-                amplitudes_by_w_dict[w].append(max_oscilation_amplitude)
-        amplitudes_by_k_and_w_dict[k] = amplitudes_by_w_dict
+
+    for archivo in archivos:
+        with open(archivo, 'r') as f:
+            data = json.load(f)
+            k = data['params']['k']
+            w = data['params']['w']
+            print(f"Calculating max oscillation amplitude for k={k} and w={w}")
+
+            # Initialize amplitudes_by_w_dict for the current k if not present
+            if k not in amplitudes_by_k_and_w_dict:
+                amplitudes_by_k_and_w_dict[k] = {}
+
+            # Get the dict for the current k
+            amplitudes_by_w_dict = amplitudes_by_k_and_w_dict[k]
+
+            # Initialize the list for the current w if not present
+            if w not in amplitudes_by_w_dict:
+                amplitudes_by_w_dict[w] = []
+
+            # Calculate amplitudes for the current w
+            for particles_in_dt in data['results']:
+                max_oscillation_amplitude = calc_max_oscilation_amplitude_in_dt(particles_in_dt)
+                amplitudes_by_w_dict[w].append(max_oscillation_amplitude)
+
     return amplitudes_by_k_and_w_dict
 
 
@@ -235,67 +247,44 @@ def amplitude_vs_omega_graphs_for_different_k(max_oscilation_amplitudes_by_k_the
         amplitude_vs_omega_graph(wsdict, k)
 
 
-# def amplitude_vs_omega_graph_with_k(amplitude_vals, omega_vals, k_vals):
-#     directory = 'Ej2_b'
 
-#     ensure_output_directory_creation(directory)
-
-#     for k in k_vals:
-#         # Graficar ω vs amplitud para cada valor de k
-#         plt.plot(omega_vals, amplitude_vals, label=f'k = {k:.0f} N/m')
-
-#     plt.xlabel('ω (rad/s)')
-#     plt.ylabel('Amplitud (m)')
-#     plt.grid(True)
-
-#     # Define the output file path with dt in the filename
-#     file_path = os.path.join(directory, f"omega_vs_amplitude_per_k.png")
-
-#     # Save the plot to the file
-#     plt.savefig(file_path)
-
-#     # Optionally, you can clear the current figure to prevent overlay issues in future plots
-#     plt.clf()
-
-#     print(f"Graphic saved to '{file_path}'")
-
-def generate_animations(data):
+def generate_animations(archivos, k, w):
     ensure_output_directory_creation(animation_directory)
 
-    for k, results_for_k in data.items():
-
-        for w, results_for_w in results_for_k.items():
-            # List to store in-memory images
-            frames = []
-            print(f"Animation for k={k} and w={w}")
-            results_for_w: list[list[dict[str, float]]]
-            time=0
-            for particles_in_dt in results_for_w:
-                amplitudes_by_particle_in_dt = {}
-                i = 0
-                for particle in particles_in_dt:
-                    amplitudes_by_particle_in_dt.setdefault(i, [])
-                    amplitudes_by_particle_in_dt[i].append(particle['position'])
-                    i += 1
-                if time%50==0:
+    for archivo in archivos:
+        with open(archivo, 'r') as f:
+            data = json.load(f)
+            params= data['params']
+            if(params['k']==k and round(params['w'], 2)==w):
+                # List to store in-memory images
+                frames = []
+                print(f"Animation for k={k} and w={w}")
+                for particles_in_dt in data['results']:
+                    amplitudes_by_particle_in_dt = {}
+                    i = 0
+                    for particle in particles_in_dt:
+                        amplitudes_by_particle_in_dt.setdefault(i, [])
+                        amplitudes_by_particle_in_dt[i].append(particle['position'])
+                        i += 1
                     frame_buf = plot_simulation_frame_in_memory(amplitudes_by_particle_in_dt.values())
                     frames.append(imageio.imread(frame_buf))
-                time+=1
+                    
 
-            # Create a GIF directly from in-memory images
-            gif_buf = io.BytesIO()
-            with imageio.get_writer(gif_buf, format='GIF', mode='I', duration=3) as writer:
-                for frame in frames:
-                    writer.append_data(frame)
+                # Create a GIF directly from in-memory images
+                gif_buf = io.BytesIO()
+                with imageio.get_writer(gif_buf, format='GIF', mode='I', duration=3) as writer:
+                    for frame in frames:
+                        writer.append_data(frame)
 
-            gif_buf.seek(0)  # Rewind the buffer to read the GIF
+                gif_buf.seek(0)  # Rewind the buffer to read the GIF
 
-            # Save or use the GIF as needed, for example, to save to a file:
-            with open(f"./Animations/simulation_k_{k}_w_{w}.gif", "wb") as f:
-                print(f"outputing gif _k_{k}_w_{w}")
-                f.write(gif_buf.getvalue())
+                # Save or use the GIF as needed, for example, to save to a file:
+                with open(f"./Animations/simulation_k_{k}_w_{w}.gif", "wb") as f:
+                    print(f"outputing gif _k_{k}_w_{w}")
+                    f.write(gif_buf.getvalue())
 
 
+        
 def ensure_output_directory_creation(directory):
     # Check if the directory exists, if not, create it
     if not os.path.exists(directory):
